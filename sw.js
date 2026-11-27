@@ -1,4 +1,4 @@
-const CACHE = 'vetpharm-v6';
+const CACHE = 'vetpharm-v7';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()).catch(() => {}));
