@@ -322,15 +322,14 @@ function renderAuth() {
 
 /* ---------- shell ---------- */
 const NAV = [
-  ['home', '🏠', 'الرئيسية'], ['sale', '🧾', 'بيع'], ['inventory', '📦', 'المخزون'],
+  ['home', '🏠', 'الرئيسية'], ['sales', '🧾', 'الفواتير'], ['inventory', '📦', 'المخزون'],
   ['consult', '🩺', 'الكشوفات'], ['more', '⋯', 'المزيد']
 ];
 function renderApp() {
   const v = S.view;
   const navHtml = NAV.map(([k, ic, t]) => {
-    const on = (k === 'more' ? ['more', 'sales', 'purchases', 'suppliers', 'customers', 'reports', 'settings'].includes(v) : v === k) ? 'on' : '';
-    const act = k === 'sale' ? ' data-act="sale-open"' : '';
-    return `<a href="#${k}"${act} class="${on}"><span class="ic">${ic}</span>${t}</a>`;
+    const on = (k === 'more' ? ['more', 'purchases', 'suppliers', 'customers', 'customer', 'reports', 'settings'].includes(v) : v === k) ? 'on' : '';
+    return `<a href="#${k}" class="${on}"><span class="ic">${ic}</span>${t}</a>`;
   }).join('');
   const title = { home: 'الرئيسية', sale: 'فاتورة بيع', inventory: 'المخزون', consult: 'الكشوفات', more: 'المزيد', sales: 'فواتير البيع', purchases: 'المشتريات', suppliers: 'الموردين', customers: 'العملاء', reports: 'التقارير', settings: 'الإعدادات' }[v] || '';
   $('#root').innerHTML = `
@@ -572,7 +571,7 @@ function viewSales() {
   return `
   <div class="row" style="justify-content:space-between;margin-bottom:10px">
     <div><div class="money" style="font-size:18px">${money(tot)}</div><div class="xs muted">${list.length} فاتورة · غير مدفوع ${money(unpaid)}</div></div>
-    <button class="btn" data-act="go" data-view="sale">+ فاتورة</button>
+    <button class="btn" data-act="sale-open">+ فاتورة جديدة</button>
   </div>
   ${list.length ? list.map(s => {
     const bal = balanceOf(s), cls = bal <= 0.001 ? 'b-paid' : num(s.paid) > 0 ? 'b-part' : 'b-due';
@@ -728,32 +727,46 @@ function consultRange(n) {
     due: Math.max(0, sum(rows, s => num(s.fee)) - sum(rows, s => Math.min(num(s.paid), num(s.fee))))
   };
 }
+let consultFrom = today(), consultTo = today();
+function consultIn(from, to) {
+  return S.sales.filter(s => num(s.fee) > 0 && s.sale_date >= from && s.sale_date <= to)
+    .slice().sort((a, b) => a.sale_date < b.sale_date ? 1 : -1);
+}
+function consultTotals(rows) {
+  const fees = sum(rows, s => num(s.fee));
+  const collected = sum(rows, s => Math.min(num(s.paid), num(s.fee)));
+  return { n: rows.length, fees, collected, due: Math.max(0, fees - collected) };
+}
+function consultRange(n) {
+  const to = n === 0 ? S.date : today();
+  const from = n === 0 ? S.date : addDays(today(), -(n - 1));
+  return consultTotals(consultIn(from, to));
+}
 function viewConsult() {
-  const d = S.date;
-  const day = S.sales.filter(s => s.sale_date === d);
-  const withFee = day.filter(s => num(s.fee) > 0);
-  const fees = sum(withFee, s => s.fee);
-  const collected = sum(withFee, s => Math.min(num(s.paid), num(s.fee)));
-  const due = Math.max(0, fees - collected);
+  const bad = consultFrom > consultTo;
+  const rows = bad ? [] : consultIn(consultFrom, consultTo);
+  const tt = consultTotals(rows);
+  const isOneDay = consultFrom === consultTo;
   return `
   <div class="card">
-    <div class="row" style="justify-content:space-between">
-      <div><div class="money" style="font-size:18px">${money(fees)}</div><div class="xs muted">${withFee.length} كشف في ${fmtDate(d)}</div></div>
-      <input type="date" value="${d}" data-act="c-date" style="width:150px">
+    <div class="grid2">
+      <div><label>من تاريخ</label><input type="date" value="${consultFrom}" data-act="c-from"></div>
+      <div><label>إلى تاريخ</label><input type="date" value="${consultTo}" data-act="c-to"></div>
     </div>
     <div class="row" style="margin-top:8px">
       <button class="btn sec sm" data-act="c-shift" data-n="-1">اليوم السابق</button>
       <button class="btn sec sm" data-act="c-today">اليوم</button>
       <button class="btn sec sm" data-act="c-shift" data-n="1">اليوم التالي</button>
     </div>
+    ${bad ? `<p class="xs" style="color:var(--warn);margin:8px 0 0">تاريخ البداية بعد تاريخ النهاية.</p>` : ''}
   </div>
   <div class="grid3" style="margin-bottom:12px">
-    <div class="stat"><div class="k">إجمالي الكشوفات</div><div class="v">${money(fees)}</div></div>
-    <div class="stat"><div class="k">المحصل</div><div class="v">${money(collected)}</div></div>
-    <div class="stat"><div class="k">الباقي</div><div class="v" style="color:var(--warn)">${money(due)}</div></div>
+    <div class="stat"><div class="k">إجمالي الكشف</div><div class="v">${money(tt.fees)}</div><div class="xs muted">${tt.n} كشف</div></div>
+    <div class="stat"><div class="k">المحصل</div><div class="v" style="color:var(--pri)">${money(tt.collected)}</div></div>
+    <div class="stat"><div class="k">الباقي</div><div class="v" style="color:${tt.due > 0 ? 'var(--warn)' : 'inherit'}">${money(tt.due)}</div></div>
   </div>
   <div class="card">
-    <h3 class="small" style="margin-bottom:8px">إجماليات الكشوفات</h3>
+    <h3 class="small" style="margin-bottom:8px">إجماليات سريعة</h3>
     <div class="scroll"><table class="tbl"><thead><tr><th>الفترة</th><th>كشوفات</th><th>الإجمالي</th><th>المحصل</th><th>الباقي</th></tr></thead><tbody>
       ${[[0, 'اليوم'], [7, 'آخر أسبوع'], [14, 'آخر أسبوعين'], [21, 'آخر 3 أسابيع'], [30, 'آخر شهر']].map(([n, label]) => {
         const r = consultRange(n);
@@ -764,8 +777,12 @@ function viewConsult() {
     <p class="xs muted" style="margin:8px 0 0">المحصل = الجزء المدفوع من قيمة الكشف نفسه، والباقي = اللي لسه على العميل من الكشف.</p>
   </div>
   <button class="btn" style="width:100%;margin-bottom:12px" data-act="consult-new">+ كشف بدون فاتورة أدوية</button>
-  ${withFee.length ? withFee.map(s => {
-    const bal = balanceOf(s);
+  <div class="row" style="justify-content:space-between;margin:0 0 8px">
+    <h3 class="small" style="margin:0">الكشوفات ${isOneDay ? 'في ' + fmtDate(consultFrom) : 'من ' + fmtDate(consultFrom) + ' إلى ' + fmtDate(consultTo)}</h3>
+    <span class="xs muted">${tt.n} كشف</span>
+  </div>
+  ${rows.length ? rows.map(s => {
+    const bal = Math.max(0, num(s.fee) - Math.min(num(s.paid), num(s.fee)));
     return `<div class="item">
       <div class="row" style="justify-content:space-between">
         <div><div class="t">${s.customer_id ? `<a href="#customer" data-act="cust-open" data-id="${s.customer_id}">${esc(s.customer_name || 'عميل نقدي')}</a>` : esc(s.customer_name || 'عميل نقدي')}</div><div class="xs muted">${fmtDate(s.sale_date)}</div></div>
@@ -774,11 +791,15 @@ function viewConsult() {
       <div class="grid3" style="margin-top:8px">
         <div><div class="xs muted">أدوية</div><div>${money(s.subtotal)}</div></div>
         <div><div class="xs muted">كشف</div><div class="money">${money(s.fee)}</div></div>
-        <div><div class="xs muted">باقي</div><div class="money">${money(bal)}</div></div>
+        <div><div class="xs muted">باقي الكشف</div><div class="money" style="color:${bal > 0 ? 'var(--warn)' : 'inherit'}">${money(bal)}</div></div>
       </div>
       ${s.note ? `<div class="xs muted" style="margin-top:6px">${esc(s.note)}</div>` : ''}
+      <div class="row" style="margin-top:8px">
+        <button class="btn sec sm" data-act="sale-view" data-id="${s.id}">تفاصيل الفاتورة</button>
+        ${balanceOf(s) > 0.001 ? `<button class="btn sec sm" data-act="sale-pay" data-id="${s.id}">تسجيل دفعة</button>` : ''}
+      </div>
     </div>`;
-  }).join('') : `<div class="card center muted">لا يوجد كشوفات في هذا اليوم.</div>`}`;
+  }).join('') : `<div class="card center muted">لا يوجد كشوفات في هذه الفترة.</div>`}`;
 }
 /* ---------- reports ---------- */
 let repFrom = addDays(today(), -30), repTo = today();
@@ -1311,7 +1332,9 @@ document.addEventListener('change', (e) => {
   const a = el.dataset.act;
   if (a && a.startsWith('d-')) { if (setDraftFromEl(el)) { S.saleOpen ? renderSaleModal() : renderApp(); } return; }
   if (a && a.startsWith('p-')) { if (setPurchaseFromEl(el)) renderPurchaseModal(); return; }
-  if (a === 'c-date') { S.date = el.value; renderApp(); return; }
+  if (a === 'c-date') { S.date = el.value; consultFrom = el.value; consultTo = el.value; renderApp(); return; }
+  if (a === 'c-from') { consultFrom = el.value; renderApp(); return; }
+  if (a === 'c-to') { consultTo = el.value; renderApp(); return; }
   if (a === 'rep-from') { repFrom = el.value; renderApp(); return; }
   if (a === 'rep-to') { repTo = el.value; renderApp(); return; }
 });
@@ -1349,8 +1372,8 @@ document.addEventListener('click', async (e) => {
     if (a === 'sale-pay') { payModal(el.dataset.id); return; }
     if (a === 'sale-del') { await deleteSale(el.dataset.id); return; }
     if (a === 'purchase-del') { await deletePurchase(el.dataset.id); return; }
-    if (a === 'c-shift') { S.date = addDays(S.date, +el.dataset.n); renderApp(); return; }
-    if (a === 'c-today') { S.date = today(); renderApp(); return; }
+    if (a === 'c-shift') { S.date = addDays(S.date, +el.dataset.n); consultFrom = S.date; consultTo = S.date; renderApp(); return; }
+    if (a === 'c-today') { S.date = today(); consultFrom = S.date; consultTo = S.date; renderApp(); return; }
     if (a === 'rep-excel') { exportCsv(); return; }
     if (a === 'rep-print') { window.print(); return; }
     if (a === 'rep-month') { repFrom = today().slice(0, 8) + '01'; repTo = today(); renderApp(); return; }
