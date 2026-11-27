@@ -1067,12 +1067,6 @@ function viewSettings() {
   </div>
 
   <div class="card">
-    <h3 class="small" style="margin-bottom:10px">بيانات تجريبية</h3>
-    <p class="xs muted" style="margin-top:0">تضيف أصناف وعملاء وفواتير وهمية للتجربة. ما تشغّلهاش على بيانات حقيقية.</p>
-    <button class="btn sec" data-act="seed">إضافة بيانات تجريبية</button>
-  </div>
-
-  <div class="card">
     <button class="btn dan" style="width:100%" data-act="logout">خروج</button>
     <p class="xs muted center" style="margin-bottom:0">فيت فارم · نسخة 1.0</p>
   </div>`;
@@ -1613,7 +1607,6 @@ document.addEventListener('click', async (e) => {
     if (a === 'rep-print') { window.print(); return; }
     if (a === 'rep-month') { repFrom = today().slice(0, 8) + '01'; repTo = today(); renderApp(); return; }
     if (a === 'rep-week') { repFrom = addDays(today(), -6); repTo = today(); renderApp(); return; }
-    if (a === 'seed') { el.disabled = true; try { await seedDemo(); } finally { el.disabled = false; } return; }
     if (a === 'logout') { signOut(); return; }
   } catch (err) { toast(err.message || 'حصل خطأ', 'err'); }
 });
