@@ -703,7 +703,6 @@ function viewCustomer() {
     <div class="row" style="justify-content:space-between;align-items:center">
       <div><div class="ph">${esc(c.name)}</div><div class="xs muted">${esc(c.phone || 'بدون تليفون')} · ${ss.length} فاتورة · ${buys} صنف</div></div>
       <div class="row" style="gap:6px;flex-wrap:nowrap">
-        ${due > 0.001 ? `<button class="btn sm" data-act="cust-pay" data-id="${c.id}">+ تسجيل دفعة</button>` : ''}
         <button class="btn sec sm" data-act="cust-back" data-view="customers">رجوع</button>
       </div>
     </div>
@@ -713,6 +712,7 @@ function viewCustomer() {
     <div class="stat"><div class="k">إجمالي المدفوع</div><div class="v" style="color:var(--pri)">${money(paid)}</div></div>
     <div class="stat"><div class="k">الباقي عليه</div><div class="v" style="color:${due > 0 ? 'var(--warn)' : 'inherit'}">${money(due)}</div></div>
   </div>
+  <button class="btn" style="width:100%;margin-bottom:12px;padding:13px" data-act="cust-pay" data-id="${c.id}">💵 تسجيل دفعة على حساب العميل</button>
   <h3 class="small" style="margin:0 0 8px">الفواتير</h3>
   ${ss.length ? ss.map(s => {
     const bal = balanceOf(s);
@@ -816,6 +816,47 @@ function viewConsult() {
   }).join('') : `<div class="card center muted">لا يوجد كشوفات في هذه الفترة.</div>`}`;
 }
 /* ---------- reports ---------- */
+function debtsData() {
+  const map = new Map();
+  S.sales.forEach(s => {
+    const bal = balanceOf(s);
+    if (bal <= 0.001) return;
+    const key = s.customer_id || 'cash';
+    if (!map.has(key)) {
+      const c = s.customer_id ? S.customers.find(x => x.id === s.customer_id) : null;
+      map.set(key, { id: s.customer_id || null, name: (c && c.name) || s.customer_name || 'عميل نقدي', phone: (c && c.phone) || '', bal: 0, inv: [] });
+    }
+    const row = map.get(key);
+    row.bal += bal;
+    row.inv.push({ id: s.id, date: s.sale_date, total: num(s.total), paid: num(s.paid), bal });
+  });
+  const rows = [...map.values()].sort((a, b) => b.bal - a.bal);
+  rows.forEach(r => r.inv.sort((a, b) => a.date < b.date ? -1 : 1));
+  return { rows, total: sum(rows, r => r.bal), count: rows.length, invCount: sum(rows, r => r.inv.length) };
+}
+function debtsCard() {
+  const d = debtsData();
+  return `
+  <div class="card" id="debts">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 class="small" style="margin:0">ديون العملاء (${d.count} عميل · ${d.invCount} فاتورة)</h3>
+      <span class="money" style="color:var(--warn);font-size:18px">${money(d.total)}</span>
+    </div>
+    ${d.rows.length ? d.rows.map(r => `<div class="item" style="margin-bottom:8px">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div><div class="t">${esc(r.name)}</div><div class="xs muted">${esc(r.phone || 'بدون تليفون')} · ${r.inv.length} فاتورة عليها باقي</div></div>
+        <span class="money" style="color:var(--warn)">${money(r.bal)}</span>
+      </div>
+      <div class="scroll" style="margin-top:8px"><table class="tbl"><thead><tr><th>التاريخ</th><th>الإجمالي</th><th>مدفوع</th><th>الباقي</th></tr></thead><tbody>
+        ${r.inv.map(i => `<tr><td class="xs">${fmtDate(i.date)}</td><td>${money(i.total)}</td><td>${money(i.paid)}</td><td class="money">${money(i.bal)}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="row" style="margin-top:8px">
+        ${r.id ? `<button class="btn sec sm" data-act="cust-open" data-id="${r.id}">صفحة العميل</button>` : ''}
+        ${r.id ? `<button class="btn sm" data-act="cust-pay" data-id="${r.id}">تسجيل دفعة</button>` : ''}
+      </div>
+    </div>`).join('') : `<div class="muted small">مفيش ديون — كل الفواتير مدفوعة.</div>`}
+  </div>`;
+}
 let repFrom = addDays(today(), -30), repTo = today();
 function viewReports() {
   const ss = salesBetween(repFrom, repTo);
@@ -851,8 +892,10 @@ function viewReports() {
     <div class="stat"><div class="k">إجمالي المبيعات</div><div class="v">${money(rev)}</div><div class="xs muted">${ss.length} فاتورة</div></div>
     <div class="stat"><div class="k">صافي الربح</div><div class="v" style="color:var(--pri)">${money(profit)}</div><div class="xs muted">تكلفة ${money(cogs)}</div></div>
     <div class="stat"><div class="k">المشتريات</div><div class="v">${money(sum(ps, p => p.total))}</div><div class="xs muted">${ps.length} فاتورة</div></div>
-    <div class="stat"><div class="k">ديون العملاء</div><div class="v" style="color:var(--warn)">${money(debts)}</div></div>
+    <div class="stat"><div class="k">ديون العملاء</div><div class="v" style="color:var(--warn)">${money(debts)}</div><div class="xs muted">${debtsData().count} عميل عليه باقي</div></div>
   </div>
+
+  ${debtsCard()}
 
   <div class="card">
     <h3 class="small" style="margin-bottom:8px">الأصناف الأكثر بيعًا</h3>
@@ -1049,6 +1092,12 @@ function saleDetailModal(id) {
 function customerPayModal(id) {
   const c = S.customers.find(x => x.id === id); if (!c) return;
   const due = Math.max(0, sum(S.sales.filter(x => x.customer_id === id), x => balanceOf(x)));
+  if (due <= 0.001) {
+    openModal(`<h3>تسجيل دفعة — ${esc(c.name)}</h3>
+      <p class="small muted">مفيش باقي على العميل ده حاليًا (كل فواتيره مدفوعة).</p>
+      <div class="row" style="margin-top:12px"><button type="button" class="btn sec grow" data-act="close">إغلاق</button></div>`);
+    return;
+  }
   openModal(`<h3>تسجيل دفعة — ${esc(c.name)}</h3>
     <p class="small muted">الباقي عليه: <b>${money(due)}</b></p>
     <form data-form="custpay" data-id="${id}">
