@@ -541,6 +541,23 @@ function renderSaleModal() {
     }
   }
 }
+function saleSumHtml(tt) {
+  const rest = Math.max(0, tt.total - tt.paid);
+  return `<div class="grid3" style="gap:8px">
+      <div><div class="xs muted">الإجمالي</div><div class="money" style="font-size:17px;color:var(--pri)">${money(tt.total)}</div></div>
+      <div><div class="xs muted">مدفوع</div><div class="money" style="font-size:17px">${money(tt.paid)}</div></div>
+      <div><div class="xs muted">باقي</div><div class="money" style="font-size:17px;color:${rest > 0.001 ? 'var(--warn)' : 'inherit'}">${money(rest)}</div></div>
+    </div>
+    ${tt.change > 0 ? `<div class="xs muted" style="margin-top:6px">فكة ترجع للعميل ${money(tt.change)}</div>` : ''}`;
+}
+function refreshSaleTotals() {
+  const box = document.querySelector('#sale-sum');
+  if (box && S.draft) box.innerHTML = saleSumHtml(draftTotals());
+  (S.draft ? S.draft.items : []).forEach((it, i) => {
+    const el = document.querySelector('[data-line="' + i + '"]');
+    if (el) el.textContent = money(num(it.qty) * num(it.price));
+  });
+}
 function saleFormHtml() {
   if (!S.draft) newDraft();
   const d = S.draft, tt = draftTotals();
@@ -582,7 +599,7 @@ function saleFormHtml() {
         <div><label>سعر الوحدة</label><input type="number" step="0.01" min="0" value="${it.price}" data-act="d-price" data-i="${i}"></div>
       </div>
       <div class="row small" style="justify-content:space-between;margin-top:7px">
-        <span class="muted">إجمالي الصنف</span><span class="money">${money(num(it.qty) * num(it.price))}</span>
+        <span class="muted">إجمالي الصنف</span><span class="money" data-line="${i}">${money(num(it.qty) * num(it.price))}</span>
       </div>
     </div>`;
   }).join('')}
@@ -608,14 +625,7 @@ function saleFormHtml() {
   </div>
 
   <div class="sale-foot">
-    <div class="card" style="margin:0;padding:10px 12px;background:var(--card2)">
-      <div class="grid3" style="gap:8px">
-        <div><div class="xs muted">الإجمالي</div><div class="money" style="font-size:17px;color:var(--pri)">${money(tt.total)}</div></div>
-        <div><div class="xs muted">مدفوع</div><div class="money" style="font-size:17px">${money(tt.paid)}</div></div>
-        <div><div class="xs muted">باقي</div><div class="money" style="font-size:17px;color:${rest > 0.001 ? 'var(--warn)' : 'inherit'}">${money(rest)}</div></div>
-      </div>
-      ${tt.change > 0 ? `<div class="xs muted" style="margin-top:6px">فكة ترجع للعميل ${money(tt.change)}</div>` : ''}
-    </div>
+    <div class="card" id="sale-sum" style="margin:0;padding:10px 12px;background:var(--card2)">${saleSumHtml(tt)}</div>
     <div class="row" style="margin-top:8px">
       <button type="button" class="btn grow" data-act="d-save">${d.editId ? 'حفظ التعديل' : 'حفظ الفاتورة'}</button>
       <button type="button" class="btn sec" data-act="d-reset">مسح</button>
@@ -1532,8 +1542,9 @@ function setPurchaseFromEl(el) {
 
 document.addEventListener('input', (e) => {
   const el = e.target.closest('[data-act]'); if (!el) return;
-  if (el.dataset.act === 'inv-search') { invSearch = el.value; const v = $('#view'); if (v) { v.innerHTML = viewInventory(); const inp = $('[data-act=inv-search]'); if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } } return; }
-  if (a && a.startsWith('d-') && S.saleOpen) { setDraftFromEl(el); renderSaleModal(); return; }
+  const a = el.dataset.act;
+  if (a === 'inv-search') { invSearch = el.value; const v = $('#view'); if (v) { v.innerHTML = viewInventory(); const inp = $('[data-act=inv-search]'); if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } } return; }
+  if (a.startsWith('d-') && S.saleOpen) { setDraftFromEl(el); refreshSaleTotals(); return; }
   setDraftFromEl(el); setPurchaseFromEl(el);
 });
 document.addEventListener('change', (e) => {
