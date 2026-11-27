@@ -1132,9 +1132,9 @@ function setDraftFromEl(el) {
     case 'd-customer': d.customer_id = el.value; if (el.value) d.customer_name = ''; return true;
     case 'd-custname': d.customer_name = el.value; return false;
     case 'd-note': d.note = el.value; return false;
-    case 'd-discount': d.discount = el.value; return false;
-    case 'd-fee': d.fee = el.value; return false;
-    case 'd-received': d.received = el.value; return false;
+    case 'd-discount': d.discount = el.value; return true;
+    case 'd-fee': d.fee = el.value; return true;
+    case 'd-received': d.received = el.value; return true;
     case 'd-product': {
       d.items[i].product_id = el.value;
       const p = S.products.find(x => x.id === el.value);
@@ -1147,8 +1147,8 @@ function setDraftFromEl(el) {
       if (p) d.items[i].price = el.value === 'box' ? num(p.sell_price_box) : num(p.sell_price_ml);
       return true;
     }
-    case 'd-qty': d.items[i].qty = el.value; return false;
-    case 'd-price': d.items[i].price = el.value; return false;
+    case 'd-qty': d.items[i].qty = el.value; return true;
+    case 'd-price': d.items[i].price = el.value; return true;
   }
   return false;
 }
@@ -1160,7 +1160,7 @@ function setPurchaseFromEl(el) {
     case 'p-supplier': d.supplier_id = el.value; if (el.value) d.supplier_name = ''; return true;
     case 'p-supname': d.supplier_name = el.value; return false;
     case 'p-note': d.note = el.value; return false;
-    case 'p-paid': d.paid = el.value; return false;
+    case 'p-paid': d.paid = el.value; return true;
     case 'p-product': {
       d.items[i].product_id = el.value;
       const p = S.products.find(x => x.id === el.value);
@@ -1169,8 +1169,8 @@ function setPurchaseFromEl(el) {
       return true;
     }
     case 'p-newname': d.items[i].new_name = el.value; return false;
-    case 'p-qty': d.items[i].qty = el.value; return false;
-    case 'p-cost': d.items[i].cost = el.value; return false;
+    case 'p-qty': d.items[i].qty = el.value; return true;
+    case 'p-cost': d.items[i].cost = el.value; return true;
   }
   return false;
 }
