@@ -45,10 +45,6 @@ input,select,textarea{font-family:inherit;font-size:15px;width:100%;padding:10px
 input:focus,select:focus,textarea:focus{border-color:var(--pri)}
 input[type=date]{direction:ltr;text-align:right;min-width:0;max-width:100%}
 .grid2>*,.grid3>*{min-width:0}
-@media(max-width:520px){
-  .grid2{grid-template-columns:1fr}
-  .grid3{gap:8px}
-}
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
 .btn{background:var(--pri);color:var(--onpri);font-weight:700;padding:11px 16px}
 .btn:active{background:var(--pri-d)}
@@ -114,6 +110,13 @@ nav a.on{color:var(--pri)}
 @media(min-width:760px){
   .grid2{grid-template-columns:1fr 1fr}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+}
+@media(max-width:520px){
+  .grid2{grid-template-columns:1fr}
+  .stat .v{font-size:17px}
+  .stat .k{font-size:11px}
+  .wrap{padding:12px}
+  .item .grid3{gap:8px}
 }
 @media print{
   nav,header,.noprint{display:none!important}
