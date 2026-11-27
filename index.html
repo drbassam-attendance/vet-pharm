@@ -516,8 +516,8 @@ function saleTotalsStrip(tt) {
     </div>
   </div>`;
 }
-function openSale() { if (!S.draft) newDraft(); S.saleOpen = true; renderSaleModal(); }
-function closeSale() { S.saleOpen = false; closeModal(); }
+function openSale() { if (!S.saleOpen) newDraft(); S.saleOpen = true; renderSaleModal(); }
+function closeSale() { S.saleOpen = false; S.draft = null; closeModal(); }
 function renderSaleModal() {
   if (!S.saleOpen) return;
   const ov = document.querySelector('#modal .ov');
