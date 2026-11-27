@@ -692,7 +692,8 @@ function waLink(raw, text) {
   return 'https://wa.me/' + n + '?text=' + encodeURIComponent(text || '');
 }
 function reminderMsg(name, amount) {
-  return 'السلام عليكم ' + (name || '') + '، معاك صيدلية د. بسام. عندك باقي ' + money(amount) + '. لو تحب تسدده أو تحتاج تفاصيل الفواتير، كلمني في أي وقت. شكرًا ليك 🌿';
+  const amt = num(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return 'السلام عليكم ورحمة الله أستاذ ' + (name || '') + '، مع حضرتك عيادة دكتور بسام البيطرية، باقي علي حضرتك ' + amt + ' ج.م، نرجو تسديدها بأقرب وقت، وشكرا لتعاون حضراتكم ❤️';
 }
 
 /* ---------- customers: one page ---------- */
