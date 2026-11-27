@@ -1100,26 +1100,33 @@ async function seedDemo() {
   for (const n of ['شركة الأدوية البيطرية', 'مخازن الدلتا']) await api(rest('suppliers'), { method: 'POST', body: { name: n } });
   await loadAll();
   const pick = (i) => S.products[i % S.products.length];
+  let made = 0;
   for (let k = 0; k < 6; k++) {
-    const p = pick(k), c = S.customers[k % S.customers.length];
-    const q = [10, 2, 20, 5, 1, 30][k];
-    const unit = k % 3 === 0 ? 'box' : 'ml';
-    const price = unit === 'box' ? num(p.sell_price_box) : num(p.sell_price_ml);
-    const line = q * price;
-    const fee = k % 2 === 0 ? 50 : 0;
-    const s = (await api(rest('sales'), {
-      method: 'POST', prefer: 'return=representation', body: {
-        sale_date: addDays(today(), -k), customer_id: c.id, customer_name: c.name,
-        subtotal: line, discount: 0, fee, total: line + fee, paid: k === 2 ? line : line + fee, note: null
-      }
-    }))[0];
-    await api('/rest/v1/rpc/sell_stock', { method: 'POST', body: { p_product: p.id, p_unit: unit, p_qty: q } });
-    await api(rest('sale_items'), {
-      method: 'POST', body: [{
-        sale_id: s.id, product_id: p.id, product_name: p.name, unit, qty: q, unit_price: price,
-        unit_cost: unit === 'box' ? num(p.purchase_price) : costPerMl(p), line_total: line
-      }]
-    });
+    try {
+      const p = pick(k), c = S.customers[k % S.customers.length];
+      const unit = k % 3 === 0 ? 'box' : 'ml';
+      const avail = unit === 'box' ? num(p.boxes) : stockMl(p);
+      let q = [10, 2, 20, 5, 1, 30][k];
+      if (q > avail) q = Math.floor(avail);
+      if (q < 1) continue;
+      const price = unit === 'box' ? num(p.sell_price_box) : num(p.sell_price_ml);
+      const line = q * price;
+      const fee = k % 2 === 0 ? 50 : 0;
+      const s = (await api(rest('sales'), {
+        method: 'POST', prefer: 'return=representation', body: {
+          sale_date: addDays(today(), -k), customer_id: c.id, customer_name: c.name,
+          subtotal: line, discount: 0, fee, total: line + fee, paid: k === 2 ? line : line + fee, note: null
+        }
+      }))[0];
+      await api('/rest/v1/rpc/sell_stock', { method: 'POST', body: { p_product: p.id, p_unit: unit, p_qty: q } });
+      await api(rest('sale_items'), {
+        method: 'POST', body: [{
+          sale_id: s.id, product_id: p.id, product_name: p.name, unit, qty: q, unit_price: price,
+          unit_cost: unit === 'box' ? num(p.purchase_price) : costPerMl(p), line_total: line
+        }]
+      });
+      made++;
+    } catch (e) { }
   }
   await loadAll(); renderApp(); toast('تمت إضافة البيانات التجريبية', 'ok');
 }
