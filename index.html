@@ -1696,7 +1696,9 @@ async function boot() {
     $('#root').innerHTML = '<div class="wrap center" style="padding-top:40px" class="muted">جاري التحميل...</div>';
     await refreshIfNeeded();
     if (!S.session) { renderAuth(); return; }
-    await ensureClinic();
+    try { await ensureClinic(); }
+    catch (e) { saveSession(null); S.clinic = null; authMode = 'login'; renderAuth(); toast('انتهت الجلسة، سجّل الدخول من جديد', 'err'); return; }
+    if (!S.clinic) { saveSession(null); authMode = 'login'; renderAuth(); toast('سجّل الدخول من جديد', 'err'); return; }
     await loadAll();
     const r = routeFromHash();
     if (r === 'sale') { S.view = 'home'; renderApp(); openSale(); return; }
