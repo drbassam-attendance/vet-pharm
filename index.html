@@ -402,6 +402,7 @@ function viewHome() {
   const days = [];
   for (let i = 13; i >= 0; i--) { const d = addDays(t, -i); days.push({ d, v: sum(S.sales.filter(s => s.sale_date === d), s => s.total) }); }
   const maxV = Math.max(1, ...days.map(x => x.v));
+  const realMax = Math.max(0, ...days.map(x => x.v));
 
   return `
   <div class="stats grid2" style="margin-bottom:12px">
@@ -412,7 +413,7 @@ function viewHome() {
   </div>
 
   <div class="card">
-    <div class="row" style="justify-content:space-between"><h3 class="small">مبيعات آخر 14 يوم</h3><span class="xs muted">أقصى يوم ${money(maxV)}</span></div>
+    <div class="row" style="justify-content:space-between"><h3 class="small">مبيعات آخر 14 يوم</h3><span class="xs muted">أقصى يوم ${money(realMax)}</span></div>
     <div class="row" style="align-items:flex-end;gap:5px;height:110px;margin-top:10px">
       ${days.map(x => `<div class="grow" style="text-align:center">
         <div style="height:${Math.round(88 * x.v / maxV)}px;background:${x.v ? 'linear-gradient(180deg,#10b981,#0d9488)' : 'var(--line2)'};border-radius:5px 5px 0 0;min-height:3px"></div>
