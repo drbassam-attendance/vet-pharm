@@ -691,6 +691,14 @@ function waLink(raw, text) {
   if (!n) return '';
   return 'https://wa.me/' + n + '?text=' + encodeURIComponent(text || '');
 }
+function smsLink(raw, text) {
+  const n = waIntl(raw);
+  if (!n) return '';
+  return 'sms:+' + n + '?body=' + encodeURIComponent(text || '');
+}
+function copyMsgBtn(text, small) {
+  return `<button type="button" class="btn sec${small ? ' sm' : ''}" data-act="copy-msg" data-msg="${esc(text)}">📋 نسخ الرسالة</button>`;
+}
 function reminderMsg(name, amount) {
   const amt = num(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return 'السلام عليكم ورحمة الله أستاذ ' + (name || '') + '، مع حضرتك عيادة دكتور بسام البيطرية، باقي علي حضرتك ' + amt + ' ج.م، نرجو تسديدها بأقرب وقت، وشكرا لتعاون حضراتكم ❤️';
@@ -735,7 +743,9 @@ function viewCustomer() {
   </div>
   <div class="row" style="margin-bottom:12px;flex-wrap:wrap">
     <button class="btn grow" style="padding:13px" data-act="cust-pay" data-id="${c.id}">💵 تسجيل دفعة على حساب العميل</button>
-    ${c.phone ? `<a class="btn sec" style="padding:13px;text-decoration:none" target="_blank" rel="noopener" href="${waLink(c.phone, due > 0.001 ? reminderMsg(c.name, due) : 'السلام عليكم ' + c.name + '، معاك صيدلية د. بسام 🌿')}">💬 واتساب</a>` : `<button class="btn sec" style="padding:13px" data-act="customer-edit" data-id="${c.id}">+ إضافة واتساب</button>`}
+    ${c.phone ? `<a class="btn sec" style="padding:13px;text-decoration:none" target="_blank" rel="noopener" href="${waLink(c.phone, due > 0.001 ? reminderMsg(c.name, due) : 'السلام عليكم ' + c.name + '، معاك صيدلية د. بسام 🌿')}">💬 واتساب</a>
+    <a class="btn sec" style="padding:13px;text-decoration:none" href="${smsLink(c.phone, due > 0.001 ? reminderMsg(c.name, due) : 'السلام عليكم ' + c.name + '، معاك صيدلية د. بسام')}">✉️ رسالة</a>` : `<button class="btn sec" style="padding:13px" data-act="customer-edit" data-id="${c.id}">+ إضافة رقم</button>`}
+    ${due > 0.001 ? copyMsgBtn(reminderMsg(c.name, due), false).replace('class="btn sec"', 'class="btn sec" style="padding:13px"') : ''}
   </div>
   <h3 class="small" style="margin:0 0 8px">الفواتير</h3>
   ${ss.length ? ss.map(s => {
@@ -877,7 +887,9 @@ function debtsCard() {
       <div class="row" style="margin-top:8px;flex-wrap:wrap">
         ${r.id ? `<button class="btn sec sm" data-act="cust-open" data-id="${r.id}">صفحة العميل</button>` : ''}
         ${r.id ? `<button class="btn sec sm" data-act="cust-pay" data-id="${r.id}">تسجيل دفعة</button>` : ''}
-        ${r.phone ? `<a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${waLink(r.phone, reminderMsg(r.name, r.bal))}">💬 تذكير واتساب</a>` : `<span class="xs muted">مفيش رقم واتساب${r.id ? ' — <a href="#customer" data-act="cust-open" data-id="' + r.id + '">أضفه</a>' : ''}</span>`}
+        ${r.phone ? `<a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${waLink(r.phone, reminderMsg(r.name, r.bal))}">💬 تذكير واتساب</a>
+        <a class="btn sec sm" style="text-decoration:none" href="${smsLink(r.phone, reminderMsg(r.name, r.bal))}">✉️ رسالة SMS</a>` : `<span class="xs muted">مفيش رقم${r.id ? ' — <a href="#customer" data-act="cust-open" data-id="' + r.id + '">أضفه</a>' : ''}</span>`}
+        ${copyMsgBtn(reminderMsg(r.name, r.bal), true)}
       </div>
     </div>`).join('') : `<div class="muted small">مفيش ديون — كل الفواتير مدفوعة.</div>`}
   </div>`;
@@ -892,11 +904,13 @@ function waBulkCard() {
     <p class="xs muted" style="margin-bottom:10px">كل زرار يفتح واتساب برسالة جاهزة فيها الاسم والمبلغ — انت بس تدوس إرسال.</p>
     ${withPhone.length ? withPhone.map(r => `<div class="row" style="justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line2)">
       <div><div class="t" style="font-size:14px">${esc(r.name)}</div><div class="xs muted">${esc(r.phone)} · ${r.inv.length} فاتورة</div></div>
-      <div class="row" style="gap:8px;align-items:center;flex-wrap:nowrap">
+      <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
         <span class="money" style="color:var(--warn)">${money(r.bal)}</span>
         <a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${waLink(r.phone, reminderMsg(r.name, r.bal))}">💬 تذكير</a>
-      </div></div>`).join('') : '<div class="muted small">مفيش عملاء عليهم ديون ولهم رقم واتساب.</div>'}
-    ${missing.length ? `<p class="xs muted" style="margin-top:8px">${missing.length} عميل عليهم ديون بدون رقم واتساب: ${missing.map(m => esc(m.name)).join(' · ')}</p>` : ''}
+        <a class="btn sec sm" style="text-decoration:none" href="${smsLink(r.phone, reminderMsg(r.name, r.bal))}">✉️</a>
+        ${copyMsgBtn(reminderMsg(r.name, r.bal), true)}
+      </div></div>`).join('') : '<div class="muted small">مفيش عملاء عليهم ديون ولهم رقم.</div>'}
+    ${missing.length ? `<p class="xs muted" style="margin-top:8px">${missing.length} عميل عليهم ديون بدون رقم مسجل — أضف أرقامهم من صفحة العميل، أو استخدم «نسخ الرسالة» وابعتها بنفسك: ${missing.map(m => esc(m.name)).join(' · ')}</p>` : ''}
   </div>`;
 }
 let repFrom = addDays(today(), -30), repTo = today();
@@ -1510,6 +1524,16 @@ document.addEventListener('click', async (e) => {
     if (a === 'product-edit') { productModal(el.dataset.id); return; }
     if (a === 'customer-new') { customerModal(); return; }
     if (a === 'customer-edit') { customerModal(el.dataset.id); return; }
+    if (a === 'copy-msg') {
+      const txt = el.dataset.msg || '';
+      try { await navigator.clipboard.writeText(txt); toast('تم نسخ الرسالة', 'ok'); }
+      catch (e) {
+        const ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('تم نسخ الرسالة', 'ok'); } catch (e2) { toast('مش قادر أنسخ — انسخ الرسالة يدوي', 'err'); }
+        ta.remove();
+      }
+      return;
+    }
     if (a === 'supplier-new') { supplierModal(); return; }
     if (a === 'consult-new') { consultModal(); return; }
     if (a === 'purchase-new') { purchaseModal(); return; }
