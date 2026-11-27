@@ -676,6 +676,25 @@ function viewCustomers() {
   </div>`).join('') : `<div class="card center muted">لا يوجد عملاء.</div>`}`;
 }
 
+/* ---------- whatsapp helpers ---------- */
+function waIntl(raw) {
+  let d = String(raw || '').replace(/[^0-9]/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('20')) return d;
+  if (d.startsWith('0')) return '20' + d.slice(1);
+  if (d.length === 10 && d.startsWith('1')) return '20' + d;
+  return d;
+}
+function waLink(raw, text) {
+  const n = waIntl(raw);
+  if (!n) return '';
+  return 'https://wa.me/' + n + '?text=' + encodeURIComponent(text || '');
+}
+function reminderMsg(name, amount) {
+  return 'السلام عليكم ' + (name || '') + '، معاك صيدلية د. بسام. عندك باقي ' + money(amount) + '. لو تحب تسدده أو تحتاج تفاصيل الفواتير، كلمني في أي وقت. شكرًا ليك 🌿';
+}
+
 /* ---------- customers: one page ---------- */
 async function addPayment(p) {
   const amt = num(p.amount);
@@ -701,8 +720,9 @@ function viewCustomer() {
   return `
   <div class="card">
     <div class="row" style="justify-content:space-between;align-items:center">
-      <div><div class="ph">${esc(c.name)}</div><div class="xs muted">${esc(c.phone || 'بدون تليفون')} · ${ss.length} فاتورة · ${buys} صنف</div></div>
+      <div><div class="ph">${esc(c.name)}</div><div class="xs muted">${esc(c.phone || 'بدون رقم واتساب')} · ${ss.length} فاتورة · ${buys} صنف</div></div>
       <div class="row" style="gap:6px;flex-wrap:nowrap">
+        <button class="btn sec sm" data-act="customer-edit" data-id="${c.id}">تعديل</button>
         <button class="btn sec sm" data-act="cust-back" data-view="customers">رجوع</button>
       </div>
     </div>
@@ -712,7 +732,10 @@ function viewCustomer() {
     <div class="stat"><div class="k">إجمالي المدفوع</div><div class="v" style="color:var(--pri)">${money(paid)}</div></div>
     <div class="stat"><div class="k">الباقي عليه</div><div class="v" style="color:${due > 0 ? 'var(--warn)' : 'inherit'}">${money(due)}</div></div>
   </div>
-  <button class="btn" style="width:100%;margin-bottom:12px;padding:13px" data-act="cust-pay" data-id="${c.id}">💵 تسجيل دفعة على حساب العميل</button>
+  <div class="row" style="margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn grow" style="padding:13px" data-act="cust-pay" data-id="${c.id}">💵 تسجيل دفعة على حساب العميل</button>
+    ${c.phone ? `<a class="btn sec" style="padding:13px;text-decoration:none" target="_blank" rel="noopener" href="${waLink(c.phone, reminderMsg(c.name, due))}">💬 واتساب</a>` : `<button class="btn sec" style="padding:13px" data-act="customer-edit" data-id="${c.id}">+ إضافة واتساب</button>`}
+  </div>
   <h3 class="small" style="margin:0 0 8px">الفواتير</h3>
   ${ss.length ? ss.map(s => {
     const bal = balanceOf(s);
@@ -850,11 +873,29 @@ function debtsCard() {
       <div class="scroll" style="margin-top:8px"><table class="tbl"><thead><tr><th>التاريخ</th><th>الإجمالي</th><th>مدفوع</th><th>الباقي</th></tr></thead><tbody>
         ${r.inv.map(i => `<tr><td class="xs">${fmtDate(i.date)}</td><td>${money(i.total)}</td><td>${money(i.paid)}</td><td class="money">${money(i.bal)}</td></tr>`).join('')}
       </tbody></table></div>
-      <div class="row" style="margin-top:8px">
+      <div class="row" style="margin-top:8px;flex-wrap:wrap">
         ${r.id ? `<button class="btn sec sm" data-act="cust-open" data-id="${r.id}">صفحة العميل</button>` : ''}
-        ${r.id ? `<button class="btn sm" data-act="cust-pay" data-id="${r.id}">تسجيل دفعة</button>` : ''}
+        ${r.id ? `<button class="btn sec sm" data-act="cust-pay" data-id="${r.id}">تسجيل دفعة</button>` : ''}
+        ${r.phone ? `<a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${waLink(r.phone, reminderMsg(r.name, r.bal))}">💬 تذكير واتساب</a>` : `<span class="xs muted">مفيش رقم واتساب${r.id ? ' — <a href="#customer" data-act="cust-open" data-id="' + r.id + '">أضفه</a>' : ''}</span>`}
       </div>
     </div>`).join('') : `<div class="muted small">مفيش ديون — كل الفواتير مدفوعة.</div>`}
+  </div>`;
+}
+function waBulkCard() {
+  const d = debtsData();
+  const withPhone = d.rows.filter(r => r.phone);
+  const missing = d.rows.filter(r => !r.phone);
+  return `
+  <div class="card noprint" id="wa-bulk">
+    <h3 class="small" style="margin-bottom:6px">تذكير جماعي بالواتساب (${withPhone.length})</h3>
+    <p class="xs muted" style="margin-bottom:10px">كل زرار يفتح واتساب برسالة جاهزة فيها الاسم والمبلغ — انت بس تدوس إرسال.</p>
+    ${withPhone.length ? withPhone.map(r => `<div class="row" style="justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line2)">
+      <div><div class="t" style="font-size:14px">${esc(r.name)}</div><div class="xs muted">${esc(r.phone)} · ${r.inv.length} فاتورة</div></div>
+      <div class="row" style="gap:8px;align-items:center;flex-wrap:nowrap">
+        <span class="money" style="color:var(--warn)">${money(r.bal)}</span>
+        <a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${waLink(r.phone, reminderMsg(r.name, r.bal))}">💬 تذكير</a>
+      </div></div>`).join('') : '<div class="muted small">مفيش عملاء عليهم ديون ولهم رقم واتساب.</div>'}
+    ${missing.length ? `<p class="xs muted" style="margin-top:8px">${missing.length} عميل عليهم ديون بدون رقم واتساب: ${missing.map(m => esc(m.name)).join(' · ')}</p>` : ''}
   </div>`;
 }
 let repFrom = addDays(today(), -30), repTo = today();
@@ -896,6 +937,7 @@ function viewReports() {
   </div>
 
   ${debtsCard()}
+  ${waBulkCard()}
 
   <div class="card">
     <h3 class="small" style="margin-bottom:8px">الأصناف الأكثر بيعًا</h3>
@@ -992,10 +1034,13 @@ function productModal(id) {
   </form>`);
 }
 
-function customerModal() {
-  openModal(`<h3>عميل جديد</h3><form data-form="customer">
-    <label>الاسم</label><input name="name" required>
-    <div style="height:8px"></div><label>التليفون</label><input name="phone">
+function customerModal(id) {
+  const c = id ? S.customers.find(x => x.id === id) : null;
+  openModal(`<h3>${c ? 'تعديل بيانات العميل' : 'عميل جديد'}</h3><form data-form="customer" data-id="${c ? c.id : ''}">
+    <label>الاسم</label><input name="name" value="${c ? esc(c.name) : ''}" required>
+    <div style="height:8px"></div><label>رقم الموبايل / واتساب</label>
+    <input name="phone" inputmode="tel" placeholder="01xxxxxxxxx" value="${c ? esc(c.phone || '') : ''}">
+    <p class="xs muted">مثال: 01012345678 — البرنامج يحوّله تلقائي لـ +201012345678 عشان لينك الواتساب.</p>
     <div class="row" style="margin-top:14px"><button class="btn grow">حفظ</button><button type="button" class="btn sec" data-act="close">إلغاء</button></div>
   </form>`);
 }
@@ -1142,8 +1187,12 @@ async function saveProduct(f, id) {
 
 async function saveCustomer(f) {
   const name = f.name.value.trim(); if (!name) throw new Error('الاسم مطلوب');
-  await api(rest('customers'), { method: 'POST', body: { name, phone: f.phone.value.trim() || null } });
-  await loadAll(); closeModal(); renderApp(); toast('تم إضافة العميل', 'ok');
+  const raw = f.phone.value.trim();
+  const phone = raw ? (waIntl(raw) || null) : null;
+  const id = f.dataset.id || null;
+  if (id) await api(rest('customers') + '?id=eq.' + id, { method: 'PATCH', body: { name, phone } });
+  else await api(rest('customers'), { method: 'POST', body: { name, phone } });
+  await loadAll(); closeModal(); renderApp(); toast(id ? 'تم حفظ بيانات العميل' : 'تم إضافة العميل', 'ok');
 }
 async function saveSupplier(f) {
   const name = f.name.value.trim(); if (!name) throw new Error('الاسم مطلوب');
@@ -1459,6 +1508,7 @@ document.addEventListener('click', async (e) => {
     if (a === 'product-new') { productModal(); return; }
     if (a === 'product-edit') { productModal(el.dataset.id); return; }
     if (a === 'customer-new') { customerModal(); return; }
+    if (a === 'customer-edit') { customerModal(el.dataset.id); return; }
     if (a === 'supplier-new') { supplierModal(); return; }
     if (a === 'consult-new') { consultModal(); return; }
     if (a === 'purchase-new') { purchaseModal(); return; }
