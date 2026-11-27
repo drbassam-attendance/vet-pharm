@@ -15,8 +15,23 @@
   --bg:#0b1220; --card:#131c2e; --card2:#182338; --line:#243149;
   --txt:#e8eefc; --muted:#93a3bd; --pri:#10b981; --pri-d:#0e9f6e;
   --danger:#ef4444; --warn:#f59e0b; --info:#38bdf8;
+  --nav:#0d1626; --input:#0e1728; --head:rgba(11,18,32,.92); --line2:#1b2740;
+  --ov:rgba(3,7,15,.72); --onpri:#04140d;
   --r:14px; --shadow:0 6px 20px rgba(0,0,0,.25);
 }
+:root[data-theme="light"]{
+  --bg:#f2f5fa; --card:#ffffff; --card2:#eef2f8; --line:#d8e0ec; --line2:#e9eef7;
+  --txt:#0f1a2b; --muted:#5b6a82; --pri:#0e9f6e; --pri-d:#0b8a5f;
+  --danger:#dc2626; --warn:#b45309; --info:#0284c7;
+  --nav:#ffffff; --input:#ffffff; --head:rgba(255,255,255,.95); --ov:rgba(15,23,42,.45);
+  --onpri:#ffffff; --shadow:0 6px 20px rgba(15,23,42,.12);
+}
+:root[data-theme="light"] .b-paid{background:#d1fae5;color:#065f46}
+:root[data-theme="light"] .b-part{background:#fef3c7;color:#92400e}
+:root[data-theme="light"] .b-due{background:#fee2e2;color:#991b1b}
+:root[data-theme="light"] .btn.dan{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+:root[data-theme="light"] #toast{background:#0f172a;border-color:#334155;color:#e8f1ff}
+:root[data-theme="light"] nav a.on{color:#0b8a5f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
   font-family:system-ui,-apple-system,"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif;
@@ -26,11 +41,11 @@ a{color:var(--pri)}
 h1,h2,h3{margin:0;font-weight:700}
 button{font-family:inherit;font-size:15px;cursor:pointer;border:0;border-radius:10px}
 input,select,textarea{font-family:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;
-  background:#0e1728;color:var(--txt);border:1px solid var(--line);outline:none}
+  background:var(--input);color:var(--txt);border:1px solid var(--line);outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--pri)}
 input[type=date]{direction:ltr;text-align:right}
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
-.btn{background:var(--pri);color:#04140d;font-weight:700;padding:11px 16px}
+.btn{background:var(--pri);color:var(--onpri);font-weight:700;padding:11px 16px}
 .btn:active{background:var(--pri-d)}
 .btn.sec{background:var(--card2);color:var(--txt);border:1px solid var(--line);font-weight:600}
 .btn.dan{background:#3a1520;color:#ffb4b4;border:1px solid #5b2230}
@@ -55,12 +70,12 @@ hr{border:0;border-top:1px solid var(--line);margin:10px 0}
 .logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(140deg,#10b981,#0ea5e9);
   display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 10px}
 /* header */
-header{position:sticky;top:0;z-index:20;background:rgba(11,18,32,.92);backdrop-filter:blur(8px);
+header{position:sticky;top:0;z-index:20;background:var(--head);backdrop-filter:blur(8px);
   border-bottom:1px solid var(--line);padding:10px 14px}
 header .row{justify-content:space-between;flex-wrap:nowrap}
 .ph{font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* nav */
-nav{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;background:#0d1626;
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;background:var(--nav);
   border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 nav a{flex:1;text-align:center;padding:9px 2px 8px;color:var(--muted);text-decoration:none;font-size:11.5px}
 nav a .ic{display:block;font-size:19px;line-height:1.1}
@@ -68,7 +83,7 @@ nav a.on{color:var(--pri)}
 /* tables */
 .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .tbl th{text-align:right;color:var(--muted);font-weight:600;font-size:12px;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
-.tbl td{padding:9px 6px;border-bottom:1px solid #1b2740;vertical-align:middle}
+.tbl td{padding:9px 6px;border-bottom:1px solid var(--line2);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:0}
 .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 /* list cards (mobile) */
@@ -77,7 +92,7 @@ nav a.on{color:var(--pri)}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700}
 .b-paid{background:#0d3a2a;color:#5eead4}.b-part{background:#3b2c0c;color:#fcd34d}.b-due{background:#3d1620;color:#fda4af}
 /* modal */
-.ov{position:fixed;inset:0;background:rgba(3,7,15,.72);z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
+.ov{position:fixed;inset:0;background:var(--ov);z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px}
 .modal{background:var(--card);border:1px solid var(--line);border-radius:16px;width:100%;max-width:640px;margin:auto;padding:16px}
 .modal h3{margin-bottom:12px}
 /* toast */
@@ -89,7 +104,7 @@ nav a.on{color:var(--pri)}
 .stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
 .stat .k{font-size:11.5px;color:var(--muted);letter-spacing:.3px}
 .stat .v{font-size:20px;font-weight:800;margin-top:2px}
-.bar{height:8px;background:#1b2740;border-radius:6px;overflow:hidden}
+.bar{height:8px;background:var(--line2);border-radius:6px;overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--pri)}
 @media(min-width:760px){
   .grid2{grid-template-columns:1fr 1fr}
@@ -115,10 +130,14 @@ const CFG = {
   key: 'sb_publishable_1N8LJeHpw76QEp9E17QduA_E7yJQF5F'
 };
 const CUR = 'ج.م';
+const THEME_KEY = 'vp_theme';
+function applyTheme(t) { try { document.documentElement.setAttribute('data-theme', t); localStorage.setItem(THEME_KEY, t); } catch (e) { } }
+const savedTheme = (() => { try { return localStorage.getItem(THEME_KEY) || 'dark'; } catch (e) { return 'dark'; } })();
+applyTheme(savedTheme);
 const S = {
   session: null, clinic: null,
-  products: [], customers: [], suppliers: [], sales: [], purchases: [], saleItems: {}, purchaseItems: {},
-  view: 'home', date: new Date().toISOString().slice(0, 10), loading: false
+  products: [], customers: [], suppliers: [], sales: [], purchases: [], payments: [], saleItems: {}, purchaseItems: {},
+  view: 'home', date: new Date().toISOString().slice(0, 10), loading: false, theme: savedTheme, saleOpen: false, custId: null
 };
 
 /* ---------- helpers ---------- */
@@ -230,17 +249,19 @@ function signOut() { saveSession(null); S.clinic = null; location.hash = ''; ren
 
 /* ---------- data ---------- */
 async function loadAll() {
-  const [clinic, products, customers, suppliers, sales, purchases] = await Promise.all([
+  const [clinic, products, customers, suppliers, sales, purchases, payments] = await Promise.all([
     api(rest('clinics') + '?select=*&limit=1'),
     api(rest('products') + '?select=*&order=name.asc'),
     api(rest('customers') + '?select=*&order=name.asc'),
     api(rest('suppliers') + '?select=*&order=name.asc'),
     api(rest('sales') + '?select=*&order=sale_date.desc,created_at.desc&limit=500'),
-    api(rest('purchases') + '?select=*&order=purchase_date.desc,created_at.desc&limit=500')
+    api(rest('purchases') + '?select=*&order=purchase_date.desc,created_at.desc&limit=500'),
+    api(rest('payments') + '?select=*&order=paid_on.desc,created_at.desc&limit=1000')
   ]);
   S.clinic = clinic && clinic[0] ? clinic[0] : null;
   S.products = products || []; S.customers = customers || [];
   S.suppliers = suppliers || []; S.sales = sales || []; S.purchases = purchases || [];
+  S.payments = payments || [];
   const ids = S.sales.map(s => s.id);
   if (ids.length) {
     const items = await api(rest('sale_items') + '?select=*&sale_id=in.(' + ids.join(',') + ')');
@@ -308,7 +329,8 @@ function renderApp() {
   const v = S.view;
   const navHtml = NAV.map(([k, ic, t]) => {
     const on = (k === 'more' ? ['more', 'sales', 'purchases', 'suppliers', 'customers', 'reports', 'settings'].includes(v) : v === k) ? 'on' : '';
-    return `<a href="#${k}" class="${on}"><span class="ic">${ic}</span>${t}</a>`;
+    const act = k === 'sale' ? ' data-act="sale-open"' : '';
+    return `<a href="#${k}"${act} class="${on}"><span class="ic">${ic}</span>${t}</a>`;
   }).join('');
   const title = { home: 'الرئيسية', sale: 'فاتورة بيع', inventory: 'المخزون', consult: 'الكشوفات', more: 'المزيد', sales: 'فواتير البيع', purchases: 'المشتريات', suppliers: 'الموردين', customers: 'العملاء', reports: 'التقارير', settings: 'الإعدادات' }[v] || '';
   $('#root').innerHTML = `
@@ -316,6 +338,7 @@ function renderApp() {
     <div style="min-width:0"><div class="ph">${esc(S.clinic ? S.clinic.name : 'صيدليتي')}</div>
       <div class="xs muted">${title}</div></div>
     <div class="row" style="gap:6px;flex-wrap:nowrap">
+      <button class="btn sec sm" data-act="theme" title="تغيير الوضع">${S.theme === 'light' ? '🌙' : '☀️'}</button>
       <button class="btn sec sm" data-act="go" data-view="reports">📊</button>
       <button class="btn sec sm" data-act="go" data-view="settings">⚙️</button>
     </div>
@@ -328,11 +351,12 @@ function viewHtml() {
   switch (S.view) {
     case 'home': return viewHome();
     case 'inventory': return viewInventory();
-    case 'sale': return viewSale();
+    case 'sale': return viewHome();
     case 'sales': return viewSales();
     case 'purchases': return viewPurchases();
     case 'suppliers': return viewSuppliers();
     case 'customers': return viewCustomers();
+    case 'customer': return viewCustomer();
     case 'consult': return viewConsult();
     case 'more': return viewMore();
     case 'reports': return viewReports();
@@ -459,78 +483,88 @@ function draftTotals() {
   const cost = d.items.reduce((t, it) => t + num(it.qty) * num(it.cost), 0);
   return { sub, disc, base, rec, fee, total, paid, change, cost, profit: total - cost };
 }
-function viewSale() {
-  if (!S.draft) newDraft();
-  const d = S.draft, tt = draftTotals();
-  return `
-  <div class="card">
-    <div class="grid2">
-      <div><label>التاريخ</label><input type="date" value="${d.date}" data-act="d-date"></div>
-      <div><label>العميل</label>
-        <select data-act="d-customer">
-          <option value="">عميل نقدي</option>
-          ${S.customers.map(c => `<option value="${c.id}" ${d.customer_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
-        </select>
+function saleTotalsStrip(tt) {
+  return `<div class="card" style="margin:0 0 10px;padding:10px 12px;background:var(--card2)">
+    <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap">
+      <div><div class="xs muted">الإجمالي</div><div class="money" style="font-size:22px;color:var(--pri);line-height:1.2">${money(tt.total)}</div></div>
+      <div style="text-align:left">
+        <div class="xs muted">أدوية ${money(tt.base)} · كشف ${money(tt.fee)}</div>
+        <div class="xs">مدفوع ${money(tt.paid)} · باقي ${money(Math.max(0, tt.total - tt.paid))}${tt.change > 0 ? ' · فكة ' + money(tt.change) : ''}</div>
       </div>
-    </div>
-    <div style="height:8px"></div>
-    <label>أو اسم عميل جديد (يتسجل تلقائي)</label>
-    <input value="${esc(d.customer_name)}" data-act="d-custname" placeholder="اسم العميل">
-  </div>
-
-  <div class="card">
-    <h3 class="small" style="margin-bottom:8px">الأصناف</h3>
-    ${d.items.map((it, i) => {
-      const p = S.products.find(x => x.id === it.product_id);
-      const avail = p ? (it.unit === 'box' ? qty(p.boxes) + ' كرتونة' : qty(stockMl(p)) + ' مل') : '';
-      return `<div class="item">
-        <div class="row" style="justify-content:space-between;margin-bottom:6px">
-          <span class="xs muted">صنف ${i + 1}${avail ? ' · المتاح ' + avail : ''}</span>
-          ${d.items.length > 1 ? `<button class="btn dan sm" data-act="d-del" data-i="${i}">حذف</button>` : ''}
-        </div>
-        <select data-act="d-product" data-i="${i}">
-          <option value="">اختر الصنف...</option>
-          ${S.products.map(pr => `<option value="${pr.id}" ${it.product_id === pr.id ? 'selected' : ''}>${esc(pr.name)}</option>`).join('')}
-        </select>
-        <div class="grid3" style="margin-top:8px">
-          <div><label>الوحدة</label><select data-act="d-unit" data-i="${i}">
-            <option value="ml" ${it.unit === 'ml' ? 'selected' : ''}>مل</option>
-            <option value="box" ${it.unit === 'box' ? 'selected' : ''}>كرتونة</option>
-          </select></div>
-          <div><label>الكمية</label><input type="number" step="0.01" min="0" value="${it.qty}" data-act="d-qty" data-i="${i}"></div>
-          <div><label>سعر الوحدة</label><input type="number" step="0.01" min="0" value="${it.price}" data-act="d-price" data-i="${i}"></div>
-        </div>
-        <div class="row small" style="justify-content:space-between;margin-top:7px">
-          <span class="muted">الإجمالي</span><span class="money">${money(num(it.qty) * num(it.price))}</span>
-        </div>
-      </div>`;
-    }).join('')}
-    <button class="btn sec sm" data-act="d-add">+ إضافة صنف</button>
-  </div>
-
-  <div class="card">
-    <div class="grid3">
-      <div><label>خصم</label><input type="number" step="0.01" min="0" value="${d.discount}" data-act="d-discount"></div>
-      <div><label>كشف (جنيه)</label><input type="number" step="0.01" min="0" value="${d.fee}" data-act="d-fee" placeholder="0"></div>
-      <div><label>المدفوع من العميل</label><input type="number" step="0.01" min="0" value="${d.received}" data-act="d-received" placeholder="${num(tt.total).toFixed(2)}"></div>
-    </div>
-    <p class="xs muted" style="margin:8px 0 0">الكشف بيتكتب لوحده. «المدفوع» هو اللي استلمته؛ لو سيبته فاضي يتحسب إنه دفع الفاتورة كلها.</p>
-    <div style="height:10px"></div>
-    <label>ملاحظة</label><input value="${esc(d.note)}" data-act="d-note" placeholder="اختياري">
-    <hr>
-    <div class="row small" style="justify-content:space-between"><span class="muted">الأدوية</span><span>${money(tt.base)}</span></div>
-    <div class="row small" style="justify-content:space-between"><span class="muted">الكشف</span><span>${money(tt.fee)}</span></div>
-    <div class="row" style="justify-content:space-between;margin-top:6px"><b>الإجمالي</b><b class="money" style="font-size:18px;color:var(--pri)">${money(tt.total)}</b></div>
-    <div class="row small" style="justify-content:space-between"><span class="muted">المدفوع</span><span>${money(tt.paid)}</span></div>
-    <div class="row small" style="justify-content:space-between"><span class="muted">الباقي على العميل</span><span class="money" style="color:${tt.total - tt.paid > 0 ? 'var(--warn)' : 'inherit'}">${money(Math.max(0, tt.total - tt.paid))}</span></div>
-    ${tt.change > 0 ? `<div class="row small" style="justify-content:space-between"><span class="muted">الباقي للعميل (فكة)</span><span>${money(tt.change)}</span></div>` : ''}
-    <div class="row" style="margin-top:12px">
-      <button class="btn grow" data-act="d-save">حفظ الفاتورة</button>
-      <button class="btn sec" data-act="d-reset">مسح</button>
     </div>
   </div>`;
 }
-
+function openSale() { if (!S.draft) newDraft(); S.saleOpen = true; renderSaleModal(); }
+function closeSale() { S.saleOpen = false; closeModal(); }
+function renderSaleModal() {
+  if (!S.saleOpen) return;
+  const ov = document.querySelector('#modal .ov');
+  const top = ov ? ov.scrollTop : 0;
+  openModal(`<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">فاتورة بيع</h3>
+      <button type="button" class="btn sec sm" data-act="sale-close">✕ إغلاق</button></div>${saleFormHtml()}`);
+  const ov2 = document.querySelector('#modal .ov');
+  if (ov2) ov2.scrollTop = top;
+}
+function saleFormHtml() {
+  if (!S.draft) newDraft();
+  const d = S.draft, tt = draftTotals();
+  return `
+  ${saleTotalsStrip(tt)}
+  <div class="grid2">
+    <div><label>التاريخ</label><input type="date" value="${d.date}" data-act="d-date"></div>
+    <div><label>العميل</label>
+      <select data-act="d-customer">
+        <option value="">عميل نقدي</option>
+        ${S.customers.map(c => `<option value="${c.id}" ${d.customer_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <div style="height:8px"></div>
+  <label>أو اسم عميل جديد (يتسجل تلقائي)</label>
+  <input value="${esc(d.customer_name)}" data-act="d-custname" placeholder="اسم العميل">
+  <hr>
+  <h3 class="small" style="margin-bottom:8px">الأصناف</h3>
+  ${d.items.map((it, i) => {
+    const p = S.products.find(x => x.id === it.product_id);
+    const avail = p ? (it.unit === 'box' ? qty(p.boxes) + ' كرتونة' : qty(stockMl(p)) + ' مل') : '';
+    return `<div class="item">
+      <div class="row" style="justify-content:space-between;margin-bottom:6px">
+        <span class="xs muted">صنف ${i + 1}${avail ? ' · المتاح ' + avail : ''}</span>
+        ${d.items.length > 1 ? `<button type="button" class="btn dan sm" data-act="d-del" data-i="${i}">حذف</button>` : ''}
+      </div>
+      <select data-act="d-product" data-i="${i}">
+        <option value="">اختر الصنف...</option>
+        ${S.products.map(pr => `<option value="${pr.id}" ${it.product_id === pr.id ? 'selected' : ''}>${esc(pr.name)}</option>`).join('')}
+      </select>
+      <div class="grid3" style="margin-top:8px">
+        <div><label>الوحدة</label><select data-act="d-unit" data-i="${i}">
+          <option value="ml" ${it.unit === 'ml' ? 'selected' : ''}>مل</option>
+          <option value="box" ${it.unit === 'box' ? 'selected' : ''}>كرتونة</option>
+        </select></div>
+        <div><label>الكمية</label><input type="number" step="0.01" min="0" value="${it.qty}" data-act="d-qty" data-i="${i}"></div>
+        <div><label>سعر الوحدة</label><input type="number" step="0.01" min="0" value="${it.price}" data-act="d-price" data-i="${i}"></div>
+      </div>
+      <div class="row small" style="justify-content:space-between;margin-top:7px">
+        <span class="muted">إجمالي الصنف</span><span class="money">${money(num(it.qty) * num(it.price))}</span>
+      </div>
+    </div>`;
+  }).join('')}
+  <button type="button" class="btn sec sm" data-act="d-add">+ إضافة صنف</button>
+  <hr>
+  <div class="grid3">
+    <div><label>خصم</label><input type="number" step="0.01" min="0" value="${d.discount}" data-act="d-discount"></div>
+    <div><label>كشف (جنيه)</label><input type="number" step="0.01" min="0" value="${d.fee}" data-act="d-fee" placeholder="0"></div>
+    <div><label>المدفوع من العميل</label><input type="number" step="0.01" min="0" value="${d.received}" data-act="d-received" placeholder="${num(tt.total).toFixed(2)}"></div>
+  </div>
+  <p class="xs muted" style="margin:8px 0 0">الكشف بيتكتب لوحده. «المدفوع» هو اللي استلمته؛ لو سيبته فاضي يتحسب إنه دفع الفاتورة كلها.</p>
+  <div style="height:8px"></div>
+  <label>ملاحظة</label><input value="${esc(d.note)}" data-act="d-note" placeholder="اختياري">
+  <div class="row" style="margin-top:12px">
+    <button type="button" class="btn grow" data-act="d-save">حفظ الفاتورة</button>
+    <button type="button" class="btn sec" data-act="d-reset">مسح</button>
+  </div>`;
+}
 /* ---------- sales list ---------- */
 function viewSales() {
   const list = S.sales;
@@ -546,7 +580,7 @@ function viewSales() {
     const items = S.saleItems[s.id] || [];
     return `<div class="item">
       <div class="row" style="justify-content:space-between">
-        <div><div class="t">${esc(s.customer_name || 'عميل نقدي')}</div>
+        <div><div class="t">${s.customer_id ? `<a href="#customer" data-act="cust-open" data-id="${s.customer_id}">${esc(s.customer_name || 'عميل نقدي')}</a>` : esc(s.customer_name || 'عميل نقدي')}</div>
           <div class="xs muted">${fmtDate(s.sale_date)} · ${items.length} صنف${num(s.fee) ? ' · كشف ' + money(s.fee) : ''}</div></div>
         <span class="badge ${cls}">${st}</span>
       </div>
@@ -616,14 +650,84 @@ function viewCustomers() {
     <div class="xs muted">${S.customers.length} عميل · ديون ${money(sum(rows, r => r.due))}</div>
     <button class="btn" data-act="customer-new">+ عميل</button>
   </div>
-  ${rows.length ? rows.map(r => `<div class="item">
+  ${rows.length ? rows.map(r => `<div class="item" data-act="cust-open" data-id="${r.c.id}" style="cursor:pointer">
     <div class="row" style="justify-content:space-between"><div class="t">${esc(r.c.name)}</div>
       <span class="money" style="color:${r.due > 0 ? 'var(--warn)' : 'inherit'}">${money(r.due)}</span></div>
-    <div class="xs muted">${esc(r.c.phone || '')} · ${r.n} فاتورة</div>
+    <div class="xs muted">${esc(r.c.phone || '')} · ${r.n} فاتورة · اضغط للتفاصيل</div>
   </div>`).join('') : `<div class="card center muted">لا يوجد عملاء.</div>`}`;
 }
 
+/* ---------- customers: one page ---------- */
+async function addPayment(p) {
+  const amt = num(p.amount);
+  if (amt <= 0) return;
+  try {
+    await api(rest('payments'), { method: 'POST', body: { sale_id: p.sale_id || null, customer_id: p.customer_id || null, amount: amt, paid_on: p.paid_on || today(), note: p.note || null } });
+  } catch (e) { }
+}
+function openCustomer(id) {
+  if (!id) return;
+  S.custId = id; S.view = 'customer'; location.hash = '#customer'; renderApp();
+}
+function viewCustomer() {
+  const c = S.customers.find(x => x.id === S.custId);
+  if (!c) return `<div class="card center muted">العميل غير موجود.</div>
+    <button class="btn sec" data-act="cust-back" data-view="customers">رجوع للعملاء</button>`;
+  const ss = S.sales.filter(s => s.customer_id === c.id).slice().sort((a, b) => a.sale_date < b.sale_date ? 1 : -1);
+  const pays = S.payments.filter(p => p.customer_id === c.id).slice().sort((a, b) => (a.paid_on || '') < (b.paid_on || '') ? 1 : -1);
+  const total = sum(ss, s => num(s.total));
+  const paid = sum(ss, s => num(s.paid));
+  const due = Math.max(0, total - paid);
+  const buys = ss.reduce((t, s) => t + (S.saleItems[s.id] || []).length, 0);
+  return `
+  <div class="card">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div><div class="ph">${esc(c.name)}</div><div class="xs muted">${esc(c.phone || 'بدون تليفون')} · ${ss.length} فاتورة · ${buys} صنف</div></div>
+      <button class="btn sec sm" data-act="cust-back" data-view="customers">رجوع</button>
+    </div>
+  </div>
+  <div class="grid3" style="margin-bottom:12px">
+    <div class="stat"><div class="k">إجمالي المشتريات</div><div class="v">${money(total)}</div></div>
+    <div class="stat"><div class="k">إجمالي المدفوع</div><div class="v" style="color:var(--pri)">${money(paid)}</div></div>
+    <div class="stat"><div class="k">الباقي عليه</div><div class="v" style="color:${due > 0 ? 'var(--warn)' : 'inherit'}">${money(due)}</div></div>
+  </div>
+  <h3 class="small" style="margin:0 0 8px">الفواتير</h3>
+  ${ss.length ? ss.map(s => {
+    const bal = balanceOf(s);
+    return `<div class="item">
+      <div class="row" style="justify-content:space-between">
+        <div><div class="t">${fmtDate(s.sale_date)}</div><div class="xs muted">${money(s.subtotal)} أدوية${num(s.fee) > 0 ? ' · كشف ' + money(s.fee) : ''}</div></div>
+        <span class="badge ${bal <= 0.001 ? 'b-paid' : num(s.paid) > 0 ? 'b-part' : 'b-due'}">${bal <= 0.001 ? 'مدفوع' : num(s.paid) > 0 ? 'جزئي' : 'آجل'}</span>
+      </div>
+      <div class="grid3" style="margin-top:8px">
+        <div><div class="xs muted">الإجمالي</div><div class="money">${money(s.total)}</div></div>
+        <div><div class="xs muted">مدفوع</div><div>${money(s.paid)}</div></div>
+        <div><div class="xs muted">باقي</div><div class="money">${money(bal)}</div></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn sec sm" data-act="sale-view" data-id="${s.id}">تفاصيل</button>
+        ${bal > 0.001 ? `<button class="btn sm" data-act="sale-pay" data-id="${s.id}">تسجيل دفعة</button>` : ''}
+      </div>
+    </div>`;
+  }).join('') : `<div class="card center muted">لا يوجد فواتير.</div>`}
+  <h3 class="small" style="margin:14px 0 8px">الدفعات</h3>
+  ${pays.length ? `<div class="card" style="padding:8px 12px"><table class="tbl"><thead><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>
+    ${pays.map(p => `<tr><td>${fmtDate(p.paid_on)}</td><td class="money">${money(p.amount)}</td><td class="xs muted">${esc(p.note || '')}</td></tr>`).join('')}
+  </tbody></table></div>` : `<div class="card center muted">لا يوجد دفعات مسجلة.</div>`}`;
+}
+
 /* ---------- consultations ---------- */
+function consultRange(n) {
+  const to = n === 0 ? S.date : today();
+  const from = n === 0 ? S.date : addDays(today(), -(n - 1));
+  const rows = S.sales.filter(s => num(s.fee) > 0 && s.sale_date >= from && s.sale_date <= to);
+  return {
+    n: rows.length,
+    fees: sum(rows, s => num(s.fee)),
+    collected: sum(rows, s => Math.min(num(s.paid), num(s.total))),
+    due: sum(rows, s => Math.max(0, balanceOf(s)))
+  };
+}
 function viewConsult() {
   const d = S.date;
   const day = S.sales.filter(s => s.sale_date === d);
@@ -648,12 +752,22 @@ function viewConsult() {
     <div class="stat"><div class="k">المحصل</div><div class="v">${money(collected)}</div></div>
     <div class="stat"><div class="k">الباقي</div><div class="v" style="color:var(--warn)">${money(due)}</div></div>
   </div>
+  <div class="card">
+    <h3 class="small" style="margin-bottom:8px">إجماليات الكشوفات</h3>
+    <div class="scroll"><table class="tbl"><thead><tr><th>الفترة</th><th>كشوفات</th><th>الإجمالي</th><th>المحصل</th><th>الباقي</th></tr></thead><tbody>
+      ${[[0, 'اليوم'], [7, 'آخر أسبوع'], [14, 'آخر أسبوعين'], [21, 'آخر 3 أسابيع'], [30, 'آخر شهر']].map(([n, label]) => {
+        const r = consultRange(n);
+        return `<tr><td>${label}</td><td>${r.n}</td><td class="money">${money(r.fees)}</td><td>${money(r.collected)}</td>
+          <td class="money" style="color:${r.due > 0 ? 'var(--warn)' : 'inherit'}">${money(r.due)}</td></tr>`;
+      }).join('')}
+    </tbody></table></div>
+  </div>
   <button class="btn" style="width:100%;margin-bottom:12px" data-act="consult-new">+ كشف بدون فاتورة أدوية</button>
   ${withFee.length ? withFee.map(s => {
     const bal = balanceOf(s);
     return `<div class="item">
       <div class="row" style="justify-content:space-between">
-        <div><div class="t">${esc(s.customer_name || 'عميل نقدي')}</div><div class="xs muted">${fmtDate(s.sale_date)}</div></div>
+        <div><div class="t">${s.customer_id ? `<a href="#customer" data-act="cust-open" data-id="${s.customer_id}">${esc(s.customer_name || 'عميل نقدي')}</a>` : esc(s.customer_name || 'عميل نقدي')}</div><div class="xs muted">${fmtDate(s.sale_date)}</div></div>
         <span class="badge ${bal <= 0.001 ? 'b-paid' : num(s.paid) > 0 ? 'b-part' : 'b-due'}">${bal <= 0.001 ? 'مدفوع' : num(s.paid) > 0 ? 'جزئي' : 'آجل'}</span>
       </div>
       <div class="grid3" style="margin-top:8px">
@@ -879,7 +993,7 @@ function saleDetailModal(id) {
   const s = S.sales.find(x => x.id === id); if (!s) return;
   const items = S.saleItems[id] || [];
   openModal(`<h3>فاتورة ${fmtDate(s.sale_date)}</h3>
-    <div class="row small" style="justify-content:space-between"><span class="muted">العميل</span><span>${esc(s.customer_name || 'عميل نقدي')}</span></div>
+    <div class="row small" style="justify-content:space-between"><span class="muted">العميل</span><span>${s.customer_id ? `<a href="#customer" data-act="cust-open" data-id="${s.customer_id}">${esc(s.customer_name || 'عميل نقدي')}</a>` : esc(s.customer_name || 'عميل نقدي')}</span></div>
     <hr>
     ${items.length ? `<table class="tbl"><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>
       ${items.map(i => `<tr><td>${esc(i.product_name || '')}</td><td>${qty(i.qty)} ${i.unit === 'box' ? 'كرتونة' : 'مل'}</td>
@@ -980,11 +1094,12 @@ async function saveSale() {
         };
       })
     });
+    await addPayment({ sale_id: sale.id, customer_id: cust.id, amount: tt.paid, paid_on: d.date });
   } catch (e) {
     await api(rest('sales') + '?id=eq.' + sale.id, { method: 'DELETE' });
     throw e;
   }
-  await loadAll(); newDraft(); S.view = 'sales'; location.hash = '#sales';
+  await loadAll(); newDraft(); S.saleOpen = false; closeModal(); S.view = 'sales'; location.hash = '#sales'; renderApp();
   toast('تم حفظ الفاتورة', 'ok');
 }
 
@@ -996,13 +1111,14 @@ async function saveConsult(f) {
     throw new Error('اختار العميل علشان الباقي يتسجل عليه');
   }
   const cust = await resolveCustomer(f.customer_id.value, f.customer_name.value);
-  await api(rest('sales'), {
-    method: 'POST', body: {
+  const cs = (await api(rest('sales'), {
+    method: 'POST', prefer: 'return=representation', body: {
       sale_date: today(), customer_id: cust.id, customer_name: cust.name,
       subtotal: 0, discount: 0, fee, total: fee, paid: Math.min(paidRaw, fee),
       note: f.note.value.trim() || null
     }
-  });
+  }))[0];
+  if (cs) await addPayment({ sale_id: cs.id, customer_id: cust.id, amount: Math.min(paidRaw, fee), paid_on: today() });
   await loadAll(); closeModal(); renderApp(); toast('تم تسجيل الكشف', 'ok');
 }
 
@@ -1125,6 +1241,7 @@ async function seedDemo() {
           unit_cost: unit === 'box' ? num(p.purchase_price) : costPerMl(p), line_total: line
         }]
       });
+      await addPayment({ sale_id: s.id, customer_id: c.id, amount: k === 2 ? line : line + fee, paid_on: addDays(today(), -k) });
       made++;
     } catch (e) { }
   }
@@ -1185,12 +1302,13 @@ function setPurchaseFromEl(el) {
 document.addEventListener('input', (e) => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   if (el.dataset.act === 'inv-search') { invSearch = el.value; const v = $('#view'); if (v) { v.innerHTML = viewInventory(); const inp = $('[data-act=inv-search]'); if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } } return; }
+  if (a && a.startsWith('d-') && S.saleOpen) { setDraftFromEl(el); renderSaleModal(); return; }
   setDraftFromEl(el); setPurchaseFromEl(el);
 });
 document.addEventListener('change', (e) => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
-  if (a && a.startsWith('d-')) { if (setDraftFromEl(el)) renderApp(); return; }
+  if (a && a.startsWith('d-')) { if (setDraftFromEl(el)) { S.saleOpen ? renderSaleModal() : renderApp(); } return; }
   if (a && a.startsWith('p-')) { if (setPurchaseFromEl(el)) renderPurchaseModal(); return; }
   if (a === 'c-date') { S.date = el.value; renderApp(); return; }
   if (a === 'rep-from') { repFrom = el.value; renderApp(); return; }
@@ -1204,7 +1322,15 @@ document.addEventListener('click', async (e) => {
     if (a === 'ov-close') { if (e.target === el) closeModal(); return; }
     if (a === 'close') { closeModal(); return; }
     if (a === 'auth-mode') { authMode = el.dataset.mode; renderAuth(); return; }
-    if (a === 'go') { S.view = el.dataset.view; location.hash = '#' + S.view; renderApp(); return; }
+    if (a === 'theme') { S.theme = S.theme === 'light' ? 'dark' : 'light'; applyTheme(S.theme); renderApp(); return; }
+    if (a === 'go') {
+      if (el.dataset.view === 'sale') { openSale(); return; }
+      S.view = el.dataset.view; location.hash = '#' + S.view; renderApp(); return;
+    }
+    if (a === 'sale-open') { openSale(); return; }
+    if (a === 'sale-close') { closeSale(); return; }
+    if (a === 'cust-open') { openCustomer(el.dataset.id); return; }
+    if (a === 'cust-back') { S.view = el.dataset.view || 'customers'; S.custId = null; location.hash = '#' + S.view; renderApp(); return; }
     if (a === 'product-new') { productModal(); return; }
     if (a === 'product-edit') { productModal(el.dataset.id); return; }
     if (a === 'customer-new') { customerModal(); return; }
@@ -1214,9 +1340,9 @@ document.addEventListener('click', async (e) => {
     if (a === 'p-add') { S.pd.items.push({ product_id: '', new_name: '', qty: 1, cost: '' }); renderPurchaseModal(); return; }
     if (a === 'p-del') { S.pd.items.splice(+el.dataset.i, 1); renderPurchaseModal(); return; }
     if (a === 'p-save') { await savePurchase(); return; }
-    if (a === 'd-add') { S.draft.items.push({ product_id: '', unit: 'ml', qty: 1, price: '', cost: 0 }); renderApp(); return; }
-    if (a === 'd-del') { S.draft.items.splice(+el.dataset.i, 1); renderApp(); return; }
-    if (a === 'd-reset') { newDraft(); renderApp(); return; }
+    if (a === 'd-add') { S.draft.items.push({ product_id: '', unit: 'ml', qty: 1, price: '', cost: 0 }); S.saleOpen ? renderSaleModal() : renderApp(); return; }
+    if (a === 'd-del') { S.draft.items.splice(+el.dataset.i, 1); S.saleOpen ? renderSaleModal() : renderApp(); return; }
+    if (a === 'd-reset') { newDraft(); S.saleOpen ? renderSaleModal() : renderApp(); return; }
     if (a === 'd-save') { el.disabled = true; try { await saveSale(); } finally { el.disabled = false; } return; }
     if (a === 'sale-view') { saleDetailModal(el.dataset.id); return; }
     if (a === 'sale-pay') { payModal(el.dataset.id); return; }
@@ -1260,6 +1386,7 @@ document.addEventListener('submit', async (e) => {
       const amt = num(f.amount.value);
       if (amt <= 0) throw new Error('اكتب مبلغ صحيح');
       await api(rest('sales') + '?id=eq.' + s.id, { method: 'PATCH', body: { paid: Math.min(num(s.total), num(s.paid) + amt) } });
+      await addPayment({ sale_id: s.id, customer_id: s.customer_id, amount: amt, paid_on: today() });
       await loadAll(); closeModal(); renderApp(); toast('تم تسجيل الدفعة', 'ok');
     } else if (kind === 'clinic') {
       await api(rest('clinics') + '?id=eq.' + S.session.user.id, {
@@ -1279,7 +1406,7 @@ document.addEventListener('submit', async (e) => {
 /* ---------- router / boot ---------- */
 function routeFromHash() {
   const h = (location.hash || '#home').replace('#', '');
-  const known = ['home', 'inventory', 'sale', 'sales', 'purchases', 'suppliers', 'customers', 'consult', 'reports', 'settings', 'more'];
+  const known = ['home', 'inventory', 'sale', 'sales', 'purchases', 'suppliers', 'customers', 'customer', 'consult', 'reports', 'settings', 'more'];
   return known.includes(h) ? h : 'home';
 }
 function render() {
@@ -1293,14 +1420,22 @@ async function boot() {
     if (!S.session) { renderAuth(); return; }
     await ensureClinic();
     await loadAll();
-    S.view = routeFromHash();
+    const r = routeFromHash();
+    if (r === 'sale') { S.view = 'home'; renderApp(); openSale(); return; }
+    if (r === 'customer' && !S.custId) { S.view = 'customers'; renderApp(); return; }
+    S.view = r;
     renderApp();
   } catch (e) {
     toast(e.message || 'تعذر تحميل البيانات', 'err');
     render();
   }
 }
-window.addEventListener('hashchange', () => { if (!S.session) return; S.view = routeFromHash(); renderApp(); });
+window.addEventListener('hashchange', () => {
+  if (!S.session) return;
+  const r = routeFromHash();
+  if (r === 'sale') { S.view = 'home'; renderApp(); openSale(); return; }
+  S.view = r; renderApp();
+});
 
 loadSession();
 if (S.session) { boot(); } else { renderAuth(); }
