@@ -43,7 +43,12 @@ button{font-family:inherit;font-size:15px;cursor:pointer;border:0;border-radius:
 input,select,textarea{font-family:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;
   background:var(--input);color:var(--txt);border:1px solid var(--line);outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--pri)}
-input[type=date]{direction:ltr;text-align:right}
+input[type=date]{direction:ltr;text-align:right;min-width:0;max-width:100%}
+.grid2>*,.grid3>*{min-width:0}
+@media(max-width:520px){
+  .grid2{grid-template-columns:1fr}
+  .grid3{gap:8px}
+}
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
 .btn{background:var(--pri);color:var(--onpri);font-weight:700;padding:11px 16px}
 .btn:active{background:var(--pri-d)}
@@ -466,6 +471,16 @@ function viewInventory() {
     </tbody></table></div>` : `<div class="card center muted">لا يوجد أصناف بعد. اضغط «صنف جديد».</div>`}`;
 }
 /* ---------- sale invoice ---------- */
+function editSale(id) {
+  const s = S.sales.find(x => x.id === id); if (!s) return;
+  const items = (S.saleItems[id] || []).map(i => ({ product_id: i.product_id || '', unit: i.unit || 'ml', qty: num(i.qty), price: num(i.unit_price), cost: num(i.unit_cost) }));
+  S.draft = {
+    editId: id, date: s.sale_date, customer_id: s.customer_id || '', customer_name: s.customer_name || '',
+    items: items.length ? items : [{ product_id: '', unit: 'ml', qty: 1, price: '', cost: 0 }],
+    discount: num(s.discount), fee: num(s.fee), received: num(s.paid), note: s.note || ''
+  };
+  S.saleOpen = true; renderSaleModal();
+}
 function newDraft() {
   S.draft = { date: today(), customer_id: '', customer_name: '', items: [{ product_id: '', unit: 'ml', qty: 1, price: '', cost: 0 }], discount: 0, fee: '', received: '', note: '' };
 }
@@ -499,8 +514,9 @@ function renderSaleModal() {
   if (!S.saleOpen) return;
   const ov = document.querySelector('#modal .ov');
   const top = ov ? ov.scrollTop : 0;
+  const editing = !!(S.draft && S.draft.editId);
   openModal(`<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
-      <h3 style="margin:0">فاتورة بيع</h3>
+      <h3 style="margin:0">${editing ? 'تعديل فاتورة' : 'فاتورة بيع'}</h3>
       <button type="button" class="btn sec sm" data-act="sale-close">✕ إغلاق</button></div>${saleFormHtml()}`);
   const ov2 = document.querySelector('#modal .ov');
   if (ov2) ov2.scrollTop = top;
@@ -560,7 +576,7 @@ function saleFormHtml() {
   <div style="height:8px"></div>
   <label>ملاحظة</label><input value="${esc(d.note)}" data-act="d-note" placeholder="اختياري">
   <div class="row" style="margin-top:12px">
-    <button type="button" class="btn grow" data-act="d-save">حفظ الفاتورة</button>
+    <button type="button" class="btn grow" data-act="d-save">${d.editId ? 'حفظ التعديل' : 'حفظ الفاتورة'}</button>
     <button type="button" class="btn sec" data-act="d-reset">مسح</button>
   </div>`;
 }
@@ -590,6 +606,7 @@ function viewSales() {
       </div>
       <div class="row" style="margin-top:8px">
         <button class="btn sec sm" data-act="sale-view" data-id="${s.id}">تفاصيل</button>
+        <button class="btn sec sm" data-act="sale-edit" data-id="${s.id}">تعديل</button>
         <button class="btn sec sm" data-act="sale-pay" data-id="${s.id}">تسجيل دفعة</button>
         <button class="btn dan sm" data-act="sale-del" data-id="${s.id}">حذف</button>
       </div>
@@ -682,7 +699,10 @@ function viewCustomer() {
   <div class="card">
     <div class="row" style="justify-content:space-between;align-items:center">
       <div><div class="ph">${esc(c.name)}</div><div class="xs muted">${esc(c.phone || 'بدون تليفون')} · ${ss.length} فاتورة · ${buys} صنف</div></div>
-      <button class="btn sec sm" data-act="cust-back" data-view="customers">رجوع</button>
+      <div class="row" style="gap:6px;flex-wrap:nowrap">
+        ${due > 0.001 ? `<button class="btn sm" data-act="cust-pay" data-id="${c.id}">+ تسجيل دفعة</button>` : ''}
+        <button class="btn sec sm" data-act="cust-back" data-view="customers">رجوع</button>
+      </div>
     </div>
   </div>
   <div class="grid3" style="margin-bottom:12px">
@@ -705,6 +725,7 @@ function viewCustomer() {
       </div>
       <div class="row" style="margin-top:8px">
         <button class="btn sec sm" data-act="sale-view" data-id="${s.id}">تفاصيل</button>
+        <button class="btn sec sm" data-act="sale-edit" data-id="${s.id}">تعديل</button>
         ${bal > 0.001 ? `<button class="btn sm" data-act="sale-pay" data-id="${s.id}">تسجيل دفعة</button>` : ''}
       </div>
     </div>`;
@@ -765,17 +786,6 @@ function viewConsult() {
     <div class="stat"><div class="k">المحصل</div><div class="v" style="color:var(--pri)">${money(tt.collected)}</div></div>
     <div class="stat"><div class="k">الباقي</div><div class="v" style="color:${tt.due > 0 ? 'var(--warn)' : 'inherit'}">${money(tt.due)}</div></div>
   </div>
-  <div class="card">
-    <h3 class="small" style="margin-bottom:8px">إجماليات سريعة</h3>
-    <div class="scroll"><table class="tbl"><thead><tr><th>الفترة</th><th>كشوفات</th><th>الإجمالي</th><th>المحصل</th><th>الباقي</th></tr></thead><tbody>
-      ${[[0, 'اليوم'], [7, 'آخر أسبوع'], [14, 'آخر أسبوعين'], [21, 'آخر 3 أسابيع'], [30, 'آخر شهر']].map(([n, label]) => {
-        const r = consultRange(n);
-        return `<tr><td>${label}</td><td>${r.n}</td><td class="money">${money(r.fees)}</td><td>${money(r.collected)}</td>
-          <td class="money" style="color:${r.due > 0 ? 'var(--warn)' : 'inherit'}">${money(r.due)}</td></tr>`;
-      }).join('')}
-    </tbody></table></div>
-    <p class="xs muted" style="margin:8px 0 0">المحصل = الجزء المدفوع من قيمة الكشف نفسه، والباقي = اللي لسه على العميل من الكشف.</p>
-  </div>
   <button class="btn" style="width:100%;margin-bottom:12px" data-act="consult-new">+ كشف بدون فاتورة أدوية</button>
   <div class="row" style="justify-content:space-between;margin:0 0 8px">
     <h3 class="small" style="margin:0">الكشوفات ${isOneDay ? 'في ' + fmtDate(consultFrom) : 'من ' + fmtDate(consultFrom) + ' إلى ' + fmtDate(consultTo)}</h3>
@@ -796,6 +806,7 @@ function viewConsult() {
       ${s.note ? `<div class="xs muted" style="margin-top:6px">${esc(s.note)}</div>` : ''}
       <div class="row" style="margin-top:8px">
         <button class="btn sec sm" data-act="sale-view" data-id="${s.id}">تفاصيل الفاتورة</button>
+        <button class="btn sec sm" data-act="sale-edit" data-id="${s.id}">تعديل</button>
         ${balanceOf(s) > 0.001 ? `<button class="btn sec sm" data-act="sale-pay" data-id="${s.id}">تسجيل دفعة</button>` : ''}
       </div>
     </div>`;
@@ -1028,7 +1039,24 @@ function saleDetailModal(id) {
     <div class="row small" style="justify-content:space-between"><span class="muted">مدفوع</span><span>${money(s.paid)}</span></div>
     <div class="row small" style="justify-content:space-between"><span class="muted">باقي</span><span class="money">${money(balanceOf(s))}</span></div>
     ${s.note ? `<p class="small muted">ملاحظة: ${esc(s.note)}</p>` : ''}
-    <div class="row" style="margin-top:12px"><button type="button" class="btn sec" data-act="close">إغلاق</button></div>`);
+    <div class="row" style="margin-top:12px"><button type="button" class="btn" data-act="sale-edit" data-id="${s.id}">تعديل الفاتورة</button>
+      <button type="button" class="btn sec" data-act="close">إغلاق</button></div>`);
+}
+
+function customerPayModal(id) {
+  const c = S.customers.find(x => x.id === id); if (!c) return;
+  const due = Math.max(0, sum(S.sales.filter(x => x.customer_id === id), x => balanceOf(x)));
+  openModal(`<h3>تسجيل دفعة — ${esc(c.name)}</h3>
+    <p class="small muted">الباقي عليه: <b>${money(due)}</b></p>
+    <form data-form="custpay" data-id="${id}">
+      <div class="grid2">
+        <div><label>المبلغ</label><input name="amount" type="number" step="0.01" min="0" required></div>
+        <div><label>التاريخ</label><input name="paid_on" type="date" value="${today()}"></div>
+      </div>
+      <div style="height:8px"></div><label>ملاحظة</label><input name="note" placeholder="اختياري">
+      <p class="xs muted">المبلغ بيتوزّع على أقدم الفواتير اللي عليها باقي.</p>
+      <div class="row" style="margin-top:12px"><button class="btn grow">حفظ الدفعة</button><button type="button" class="btn sec" data-act="close">إلغاء</button></div>
+    </form>`);
 }
 
 function payModal(id) {
@@ -1086,36 +1114,55 @@ async function saveSale() {
   const d = S.draft, tt = draftTotals();
   const items = d.items.filter(i => i.product_id && num(i.qty) > 0);
   if (!items.length) throw new Error('أضف صنف واحد على الأقل بكمية');
+  const editingId = d.editId || null;
+  const oldItems = editingId ? (S.saleItems[editingId] || []) : [];
   for (const it of items) {
     const p = S.products.find(x => x.id === it.product_id);
     if (!p) throw new Error('صنف غير معروف');
-    const avail = it.unit === 'box' ? num(p.boxes) : stockMl(p);
+    let avail = it.unit === 'box' ? num(p.boxes) : stockMl(p);
+    oldItems.filter(o => o.product_id === it.product_id && o.unit === it.unit)
+      .forEach(o => { avail += num(o.qty); });
     if (num(it.qty) > avail) throw new Error('المخزون لا يكفي في ' + p.name + ' (المتاح ' + qty(avail) + ')');
   }
   const cust = await resolveCustomer(d.customer_id, d.customer_name);
-  const sale = (await api(rest('sales'), {
-    method: 'POST', prefer: 'return=representation',
-    body: {
-      sale_date: d.date, customer_id: cust.id, customer_name: cust.name,
-      subtotal: tt.sub, discount: tt.disc, fee: tt.fee, total: tt.total,
-      paid: tt.paid, note: d.note.trim() || null
+  const rowBody = {
+    sale_date: d.date, customer_id: cust.id, customer_name: cust.name,
+    subtotal: tt.sub, discount: tt.disc, fee: tt.fee, total: tt.total,
+    paid: tt.paid, note: d.note.trim() || null
+  };
+  const itemRows = (saleId) => items.map(it => {
+    const p = S.products.find(x => x.id === it.product_id);
+    return {
+      sale_id: saleId, product_id: it.product_id, product_name: p ? p.name : null,
+      unit: it.unit, qty: num(it.qty), unit_price: num(it.price),
+      unit_cost: it.unit === 'box' ? num(p.purchase_price) : costPerMl(p),
+      line_total: num(it.qty) * num(it.price)
+    };
+  });
+
+  if (editingId) {
+    for (const o of oldItems) {
+      if (o.product_id) await api('/rest/v1/rpc/restore_stock', { method: 'POST', body: { p_product: o.product_id, p_unit: o.unit, p_qty: num(o.qty) } }).catch(() => { });
     }
-  }))[0];
+    await api(rest('sales') + '?id=eq.' + editingId, { method: 'PATCH', body: rowBody });
+    for (const it of items) {
+      await api('/rest/v1/rpc/sell_stock', { method: 'POST', body: { p_product: it.product_id, p_unit: it.unit, p_qty: num(it.qty) } });
+    }
+    await api(rest('sale_items') + '?sale_id=eq.' + editingId, { method: 'DELETE' });
+    await api(rest('sale_items'), { method: 'POST', body: itemRows(editingId) });
+    await api(rest('payments') + '?sale_id=eq.' + editingId, { method: 'DELETE' }).catch(() => { });
+    await addPayment({ sale_id: editingId, customer_id: cust.id, amount: tt.paid, paid_on: d.date });
+    await loadAll(); newDraft(); S.saleOpen = false; closeModal(); S.view = 'sales'; location.hash = '#sales'; renderApp();
+    toast('تم تعديل الفاتورة', 'ok');
+    return;
+  }
+
+  const sale = (await api(rest('sales'), { method: 'POST', prefer: 'return=representation', body: rowBody }))[0];
   try {
     for (const it of items) {
       await api('/rest/v1/rpc/sell_stock', { method: 'POST', body: { p_product: it.product_id, p_unit: it.unit, p_qty: num(it.qty) } });
     }
-    await api(rest('sale_items'), {
-      method: 'POST', body: items.map(it => {
-        const p = S.products.find(x => x.id === it.product_id);
-        return {
-          sale_id: sale.id, product_id: it.product_id, product_name: p ? p.name : null,
-          unit: it.unit, qty: num(it.qty), unit_price: num(it.price),
-          unit_cost: it.unit === 'box' ? num(p.purchase_price) : costPerMl(p),
-          line_total: num(it.qty) * num(it.price)
-        };
-      })
-    });
+    await api(rest('sale_items'), { method: 'POST', body: itemRows(sale.id) });
     await addPayment({ sale_id: sale.id, customer_id: cust.id, amount: tt.paid, paid_on: d.date });
   } catch (e) {
     await api(rest('sales') + '?id=eq.' + sale.id, { method: 'DELETE' });
@@ -1354,6 +1401,8 @@ document.addEventListener('click', async (e) => {
     if (a === 'sale-open') { openSale(); return; }
     if (a === 'sale-close') { closeSale(); return; }
     if (a === 'cust-open') { openCustomer(el.dataset.id); return; }
+    if (a === 'cust-pay') { customerPayModal(el.dataset.id); return; }
+    if (a === 'sale-edit') { closeModal(); editSale(el.dataset.id); return; }
     if (a === 'cust-back') { S.view = el.dataset.view || 'customers'; S.custId = null; location.hash = '#' + S.view; renderApp(); return; }
     if (a === 'product-new') { productModal(); return; }
     if (a === 'product-edit') { productModal(el.dataset.id); return; }
@@ -1411,6 +1460,25 @@ document.addEventListener('submit', async (e) => {
       if (amt <= 0) throw new Error('اكتب مبلغ صحيح');
       await api(rest('sales') + '?id=eq.' + s.id, { method: 'PATCH', body: { paid: Math.min(num(s.total), num(s.paid) + amt) } });
       await addPayment({ sale_id: s.id, customer_id: s.customer_id, amount: amt, paid_on: today() });
+      await loadAll(); closeModal(); renderApp(); toast('تم تسجيل الدفعة', 'ok');
+    } else if (kind === 'custpay') {
+      const cid = f.dataset.id;
+      const amt = num(f.amount.value);
+      const when = f.paid_on.value || today();
+      if (amt <= 0) throw new Error('اكتب مبلغ صحيح');
+      const openSales = S.sales.filter(x => x.customer_id === cid && balanceOf(x) > 0.001)
+        .slice().sort((a, b) => a.sale_date < b.sale_date ? -1 : 1);
+      const debt = sum(openSales, x => balanceOf(x));
+      if (debt <= 0.001) throw new Error('مفيش باقي على العميل');
+      if (amt > debt + 0.001) throw new Error('المبلغ أكبر من الباقي (' + money(debt) + ')');
+      let left = amt;
+      for (const x of openSales) {
+        if (left <= 0.001) break;
+        const part = Math.min(balanceOf(x), left);
+        await api(rest('sales') + '?id=eq.' + x.id, { method: 'PATCH', body: { paid: num(x.paid) + part } });
+        await addPayment({ sale_id: x.id, customer_id: cid, amount: part, paid_on: when, note: f.note.value.trim() || null });
+        left -= part;
+      }
       await loadAll(); closeModal(); renderApp(); toast('تم تسجيل الدفعة', 'ok');
     } else if (kind === 'clinic') {
       await api(rest('clinics') + '?id=eq.' + S.session.user.id, {
