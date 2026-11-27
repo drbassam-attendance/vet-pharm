@@ -734,7 +734,7 @@ function viewCustomer() {
   </div>
   <div class="row" style="margin-bottom:12px;flex-wrap:wrap">
     <button class="btn grow" style="padding:13px" data-act="cust-pay" data-id="${c.id}">💵 تسجيل دفعة على حساب العميل</button>
-    ${c.phone ? `<a class="btn sec" style="padding:13px;text-decoration:none" target="_blank" rel="noopener" href="${waLink(c.phone, reminderMsg(c.name, due))}">💬 واتساب</a>` : `<button class="btn sec" style="padding:13px" data-act="customer-edit" data-id="${c.id}">+ إضافة واتساب</button>`}
+    ${c.phone ? `<a class="btn sec" style="padding:13px;text-decoration:none" target="_blank" rel="noopener" href="${waLink(c.phone, due > 0.001 ? reminderMsg(c.name, due) : 'السلام عليكم ' + c.name + '، معاك صيدلية د. بسام 🌿')}">💬 واتساب</a>` : `<button class="btn sec" style="padding:13px" data-act="customer-edit" data-id="${c.id}">+ إضافة واتساب</button>`}
   </div>
   <h3 class="small" style="margin:0 0 8px">الفواتير</h3>
   ${ss.length ? ss.map(s => {
