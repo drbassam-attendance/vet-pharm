@@ -907,7 +907,7 @@ function waBulkCard() {
       <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
         <span class="money" style="color:var(--warn)">${money(r.bal)}</span>
         <a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${waLink(r.phone, reminderMsg(r.name, r.bal))}">💬 تذكير</a>
-        <a class="btn sec sm" style="text-decoration:none" href="${smsLink(r.phone, reminderMsg(r.name, r.bal))}">✉️</a>
+        <a class="btn sec sm" style="text-decoration:none" href="${smsLink(r.phone, reminderMsg(r.name, r.bal))}">✉️ SMS</a>
         ${copyMsgBtn(reminderMsg(r.name, r.bal), true)}
       </div></div>`).join('') : '<div class="muted small">مفيش عملاء عليهم ديون ولهم رقم.</div>'}
     ${missing.length ? `<p class="xs muted" style="margin-top:8px">${missing.length} عميل عليهم ديون بدون رقم مسجل — أضف أرقامهم من صفحة العميل، أو استخدم «نسخ الرسالة» وابعتها بنفسك: ${missing.map(m => esc(m.name)).join(' · ')}</p>` : ''}
