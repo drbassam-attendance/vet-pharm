@@ -473,7 +473,7 @@ function viewInventory() {
       <td class="${num(p.boxes) <= num(p.reorder_level) ? 'money' : ''}" style="${num(p.boxes) <= num(p.reorder_level) ? 'color:var(--warn)' : ''}">${qty(p.boxes)} كرتونة${num(p.remaining_ml) ? ' + ' + qty(p.remaining_ml) + ' مل' : ''}</td>
       <td class="xs">${p.expiry ? fmtDate(p.expiry) : '—'}</td>
       <td class="money">${money(stockValue(p))}</td>
-      <td><button class="btn sec sm" data-act="product-edit" data-id="${p.id}">تعديل</button></td>
+      <td style="white-space:nowrap"><button class="btn sec sm" data-act="product-edit" data-id="${p.id}">تعديل</button> <button class="btn sec sm" data-act="product-del" data-id="${p.id}">حذف</button></td>
     </tr>`).join('')}
     </tbody></table></div>` : `<div class="card center muted">لا يوجد أصناف بعد. اضغط «صنف جديد».</div>`}`;
 }
@@ -1390,6 +1390,13 @@ async function savePurchase() {
 }
 
 /* ---------- deletes ---------- */
+async function deleteProduct(id) {
+  const p = S.products.find(x => x.id === id);
+  if (!confirm('حذف الصنف «' + (p ? p.name : '') + '»؟ الفواتير القديمة هتفضل زي ما هي.')) return;
+  await api(rest('products') + '?id=eq.' + id, { method: 'DELETE' });
+  S.products = S.products.filter(x => x.id !== id);
+  renderApp(); toast('تم حذف الصنف', 'ok');
+}
 async function deleteSale(id) {
   if (!confirm('حذف الفاتورة؟ سيتم إرجاع الكميات للمخزون.')) return;
   const items = S.saleItems[id] || [];
@@ -1600,6 +1607,7 @@ document.addEventListener('click', async (e) => {
     if (a === 'sale-view') { saleDetailModal(el.dataset.id); return; }
     if (a === 'sale-pay') { payModal(el.dataset.id); return; }
     if (a === 'sale-del') { await deleteSale(el.dataset.id); return; }
+    if (a === 'product-del') { await deleteProduct(el.dataset.id); return; }
     if (a === 'purchase-del') { await deletePurchase(el.dataset.id); return; }
     if (a === 'c-shift') { S.date = addDays(S.date, +el.dataset.n); consultFrom = S.date; consultTo = S.date; renderApp(); return; }
     if (a === 'c-today') { S.date = today(); consultFrom = S.date; consultTo = S.date; renderApp(); return; }
